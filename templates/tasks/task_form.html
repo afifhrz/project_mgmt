@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-6 max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Create New Task</h1>
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded">
+            Create Task
+        </button>
+    </form>
+</div>
+{% endblock %}

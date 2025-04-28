@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-semibold mb-4">{{ project.name }}</h1>
+        
+        <div class="mb-4">
+            <strong>Description:</strong>
+            <p>{{ project.description }}</p>
+        </div>
+
+        <div class="mb-4">
+            <strong>Created By:</strong>
+            <p>{{ project.created_by.username }}</p>
+        </div>
+
+        <div class="mt-6">
+            
+            <a href="{% url 'projects:delete' project.id %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Project</a>
+            <a href="{% url 'projects:list' %}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 ml-4">Back to Project List</a>
+        </div>
+    </div>
+    <!-- Modal container -->
+    <div x-data="{ open: false }">
+        <!-- Button to open modal -->
+        <a href="#" x-on:click.prevent="open = true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Sprint</a>
+
+        <!-- Modal -->
+        <div x-show="open" x-cloak class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white p-6 rounded shadow-lg w-96">
+                <h3 class="text-xl font-semibold mb-4">Start Sprint</h3>
+                
+                <!-- Form for dates -->
+                <form method="post" hx-post="{% url 'projects:sprint' project.id %}" hx-target="#modal-response">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="start_date" class="block text-gray-700">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="end_date" class="block text-gray-700">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="button" x-on:click="open = false" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Cancel</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder for any response after submitting the form -->
+    <div id="modal-response"></div>
+
+{% endblock %}

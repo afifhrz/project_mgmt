@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">Projects Dashboard</h1>
+        <a href="{% url 'projects:create' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + New Project
+        </a>
+    </div>
+
+    <div class="space-y-4">
+        {% for project in projects %}
+        <div class="bg-white rounded shadow p-4">
+            <h2 class="text-xl font-semibold">{{ project.name }}</h2>
+            <p class="text-gray-600">{{ project.description|truncatewords:20 }}</p>
+            <a href="{% url 'projects:detail' project.id %}" class="text-blue-500 hover:underline mt-2 inline-block">
+                View Project →
+            </a>
+        </div>
+        {% empty %}
+        <p>No projects yet. Let's create one!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

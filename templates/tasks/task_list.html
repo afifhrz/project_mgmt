@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-6">
+    <h1 class="text-3xl font-bold mb-4">{{ sprint.project.name }} - Sprint Board</h1>
+
+    <div class="space-y-4">
+        {% for task in tasks %}
+        <div class="bg-white rounded shadow p-4" x-data="{ open: false }">
+            <div class="flex justify-between items-center">
+                <h2 @click="open = !open" class="cursor-pointer font-semibold text-lg">
+                    {{ task.title }}
+                </h2>
+
+                <div>
+                    {% if task.status != 'DONE' %}
+                    <button class="text-xs bg-green-500 text-white px-2 py-1 rounded"
+                        hx-post="{% url 'tasks:update_status' task.id %}"
+                        hx-vals='{"status":"PROGRESS"}'
+                        hx-swap="outerHTML">Progress</button>
+
+                    <button class="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
+                        hx-post="{% url 'tasks:update_status' task.id %}"
+                        hx-vals='{"status":"PENDING"}'
+                        hx-swap="outerHTML">Pending</button>
+                    {% endif %}
+
+                    <button class="text-xs bg-blue-500 text-white px-2 py-1 rounded"
+                        hx-post="{% url 'tasks:update_status' task.id %}"
+                        hx-vals='{"status":"DONE"}'
+                        hx-swap="outerHTML">Done</button>
+                </div>
+            </div>
+
+            <div x-show="open" x-transition class="mt-4 text-gray-700">
+                <p><strong>Description:</strong> {{ task.description }}</p>
+                <p><strong>Status:</strong> {{ task.get_status_display }}</p>
+                <p><strong>PIC:</strong> {{ task.pic.get_full_name }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <p>No tasks available.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
