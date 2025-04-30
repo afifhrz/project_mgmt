@@ -1,6 +1,9 @@
+from django.http import HttpResponse
+from django.template.loader import render_to_string # type: ignore
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.views.generic import DetailView # type: ignore
+from django.urls import reverse_lazy # type: ignore
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView # type: ignore
 from .decorators import user_is_gm_or_agm
 from projects.models import Sprint
 from tasks.models import Task
@@ -37,18 +40,82 @@ class ProjectDetailView(DetailView):
     context_object_name = 'project'  # This makes 'project' available in the template
 
 @user_is_gm_or_agm
-def sprint_create(request):
+def start_sprint(request):
+    project = get_object_or_404(Project, id=request.POST["project_id"])
+
     if request.method == 'POST':
         form = SprintForm(request.POST)
         if form.is_valid():
-            sprint = form.save(commit=False)
-            sprint.project = get_object_or_404(Project, id=request.POST.get('project_id'))
-            sprint.created_by = request.user  # assume user is logged in
-            sprint.save()
-            return redirect('home')  # go back to home after create
-    else:
-        form = SprintForm()
-    return render(request, 'projects/sprint_form.html', {'form': form})
+            start = form.cleaned_data['start_date']
+            end = form.cleaned_data['end_date']
+            name = form.cleaned_data['name']
+
+            # Check for overlapping sprints
+            overlapping = Sprint.objects.filter(
+                project=project,
+                start_date__lte=end,
+                end_date__gte=start,
+            ).exists()
+
+            if overlapping:
+                html = render_to_string("components/error.html", {"message": "Sprint dates overlap!"})
+                return HttpResponse(html)
+
+            # Save new sprint if no overlap
+            Sprint.objects.create(
+                project=project,
+                name=name,
+                start_date=start,
+                end_date=end,
+                created_by=request.user,
+            )
+
+            html = render_to_string("components/error.html", {"message": "Sprint created successfully!"})
+            return HttpResponse(html)
+
+        # Invalid form
+        html = render_to_string("components/error.html", {"message": "Invalid data. Please check the form fields."})
+        return HttpResponse(html)
+
+    html = render_to_string("components/error.html", {"message": "Invalid request method."})
+    return HttpResponse(html)
+
+class SprintListView(ListView):
+    model = Sprint
+    template_name = 'sprints/sprint_list.html'
+    context_object_name = 'sprints'
+
+    def get_queryset(self):
+        self.project = Project.objects.get(pk=self.kwargs['project_id'])
+        return Sprint.objects.filter(project=self.project).order_by('-start_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['project'] = self.project
+        return context
+
+class SprintUpdateView(UpdateView):
+    model = Sprint
+    form_class = SprintForm
+    template_name = 'sprints/sprint_form.html'
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponse(status=204)  # Triggers modal close
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+class SprintDeleteView(DeleteView):
+    model = Sprint
+    template_name = 'sprints/sprint_confirm_delete.html'
+    success_url = reverse_lazy('sprints:sprint_list')  # fallback
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return HttpResponse(status=204)
+
 
 def sprint_detail(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)

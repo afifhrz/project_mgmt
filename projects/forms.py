@@ -10,9 +10,17 @@ class ProjectForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'border rounded p-2 w-full', 'rows': 4}),
         }
     
-class SprintForm(forms.Form):
-    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+class SprintForm(forms.ModelForm):
     class Meta:
         model = Sprint
-        fields = ['start_date', 'end_date'] 
+        fields = ['name','start_date', 'end_date']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get("start_date")
+        end = cleaned_data.get("end_date")
+
+        if start and end and start > end:
+            raise forms.ValidationError("End date must be after start date.")
+        return cleaned_data
+

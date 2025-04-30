@@ -14,16 +14,23 @@
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="bg-gray-50">
-    <nav>
-        <ul class="flex items-center space-x-4">
-            <li><a href="/">Home</a></li>
-            {% if user.is_authenticated %}
-                <li>Welcome, {{ user.username }}</li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
-            {% else %}
-                <li><a href="{% url 'login' %}">Login</a></li>
-            {% endif %}
-        </ul>
+    <nav class="bg-white shadow p-4 mb-6">
+        <div class="flex justify-between items-center">
+            <a href="/" class="text-3xl font-bold">Project Management</a>
+            <div class="hidden md:flex space-x-4">
+                <a href="{% url 'projects:list' %}" class="text-gray-700 hover:text-blue-500">Projects</a>
+                <a href="{% url 'projects:start_sprint' %}" class="text-gray-700 hover:text-blue-500">Sprints</a>
+            </div>
+            <ul class="flex items-center space-x-4">
+                <li><a href="/">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li>Welcome, {{ user.username }}</li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </nav>
     
     {% block content %}
