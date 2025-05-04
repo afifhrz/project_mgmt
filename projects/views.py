@@ -1,9 +1,13 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string # type: ignore
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy # type: ignore
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView # type: ignore
+from django.utils.html import escape
+from django.views.generic import DetailView, ListView, UpdateView, DeleteView
+
+from utils.alert import getErrorAlertScript, getSuccessAlertScript # type: ignore
+
 from .decorators import user_is_gm_or_agm
 from projects.models import Sprint
 from tasks.models import Task
@@ -58,8 +62,8 @@ def start_sprint(request):
             ).exists()
 
             if overlapping:
-                html = render_to_string("components/error.html", {"message": "Sprint dates overlap!"})
-                return HttpResponse(html)
+                message = escape("Sprint dates overlap with an existing sprint.")
+                return HttpResponse(f"{getErrorAlertScript(message)}", content_type="text/html")
 
             # Save new sprint if no overlap
             Sprint.objects.create(
@@ -70,12 +74,14 @@ def start_sprint(request):
                 created_by=request.user,
             )
 
-            html = render_to_string("components/error.html", {"message": "Sprint created successfully!"})
-            return HttpResponse(html)
+            message = escape("Sprint created successfully!")
+            redirect_url = reverse_lazy('projects:sprint_list', kwargs={'project_id': project.id})
+
+            return HttpResponse(f"{getSuccessAlertScript(message, redirect_url)}", content_type="text/html")
 
         # Invalid form
-        html = render_to_string("components/error.html", {"message": "Invalid data. Please check the form fields."})
-        return HttpResponse(html)
+        message = escape("Invalid form submission.")
+        return HttpResponse(f"{getErrorAlertScript(message)}", content_type="text/html")
 
     html = render_to_string("components/error.html", {"message": "Invalid request method."})
     return HttpResponse(html)
