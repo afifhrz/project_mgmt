@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string # type: ignore
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy # type: ignore
+from django.urls import reverse, reverse_lazy # type: ignore
 
 from django.utils.html import escape
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
@@ -113,16 +113,36 @@ class SprintUpdateView(UpdateView):
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
 
-class SprintDeleteView(DeleteView):
-    model = Sprint
-    template_name = 'sprints/sprint_confirm_delete.html'
-    success_url = reverse_lazy('projects:sprint_list', kwargs = {'project_id': 3})  # fallback
-    
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.delete()
-        return HttpResponseRedirect(self.get_success_url())
+@user_is_gm_or_agm
+def sprint_delete_view(request, pk):
+    sprint = get_object_or_404(Sprint, pk=pk)
 
+    if request.method == "POST":
+        project_id = sprint.project.id
+        sprint.delete()
+        success_url = reverse('projects:sprint_list', kwargs={'project_id': project_id})
+
+        # If the request is from HTMX, return an alert and the redirect
+        if request.headers.get('HX-Request'):
+            message = "Sprint deleted successfully!"
+            alert_html = f"""
+            <div class="alert alert-success" role="alert">
+                {message}
+            </div>
+            <script>
+                $.notify('{message}', 'success');
+                setTimeout(() => {{
+                    window.location.href = '{success_url}';
+                }}, 2000);
+            </script>
+            """
+            response = HttpResponse(alert_html, content_type="text/html")
+            response['HX-Redirect'] = success_url
+            return response
+
+        return redirect(success_url)
+
+    return render(request, 'sprints/sprint_confirm_delete.html', {'object': sprint})
 
 def sprint_detail(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)

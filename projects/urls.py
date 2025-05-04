@@ -10,6 +10,6 @@ urlpatterns = [
     path('sprint', start_sprint, name='start_sprint'),
     path('<int:project_id>/sprints/', SprintListView.as_view(), name='sprint_list'),
     path('sprint/<int:pk>/edit/', SprintUpdateView.as_view(), name='sprint_edit'),
-    path('sprint/<int:pk>/delete/', SprintDeleteView.as_view(), name='sprint_delete'),  
+    path('sprint/<int:pk>/delete/', sprint_delete_view, name='sprint_delete'),  
     path('', home, name='list'),
 ]

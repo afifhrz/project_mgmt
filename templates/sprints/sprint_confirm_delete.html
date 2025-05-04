@@ -1,14 +1,13 @@
 <form method="post" 
       hx-post="{% url 'projects:sprint_delete' object.id %}" 
-      hx-headers='{"X-CSRFToken": "{{ csrf_token }}", "X-HTTP-Method-Override": "DELETE"}' 
       hx-target="#modal-content" 
-      hx-swap="innerHTML">
-
+      hx-swap="innerHTML"
+>
     {% csrf_token %}
     <p>Are you sure you want to delete sprint: <strong>{{ object.name }}</strong>?</p>
     <div class="flex justify-end gap-2 mt-4">
-      <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
-      <button type="button" onclick="document.getElementById('modal').style.display='none'" class="text-gray-600">Cancel</button>
+      <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete</button>
+      <button type="button" onclick="document.getElementById('modal').style.display='none'" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
     </div>
 </form>
   
