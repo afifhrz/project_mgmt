@@ -3,6 +3,7 @@ from django.template.loader import render_to_string # type: ignore
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy # type: ignore
+
 from django.utils.html import escape
 from django.views.generic import DetailView, ListView, UpdateView, DeleteView
 
@@ -104,7 +105,7 @@ class SprintUpdateView(UpdateView):
     model = Sprint
     form_class = SprintForm
     template_name = 'sprints/sprint_form.html'
-
+    
     def form_valid(self, form):
         form.save()
         return HttpResponse(status=204)  # Triggers modal close
@@ -115,12 +116,12 @@ class SprintUpdateView(UpdateView):
 class SprintDeleteView(DeleteView):
     model = Sprint
     template_name = 'sprints/sprint_confirm_delete.html'
-    success_url = reverse_lazy('sprints:sprint_list')  # fallback
-
+    success_url = reverse_lazy('projects:sprint_list', kwargs = {'project_id': 3})  # fallback
+    
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.object.delete()
-        return HttpResponse(status=204)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 def sprint_detail(request, sprint_id):
