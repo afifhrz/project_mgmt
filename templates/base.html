@@ -6,11 +6,6 @@
     <meta charset="UTF-8">
     <title>{% block title %}Project Management App{% endblock %}</title>
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-
-    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body class="bg-gray-50">
     <nav class="bg-white shadow p-4 mb-6">
@@ -39,13 +34,4 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js" integrity="sha512-efUTj3HdSPwWJ9gjfGR71X9cvsrthIA78/Fvd/IN+fttQVy7XWkOAXb295j8B3cmm/kFKVxjiNYzKw9IQJHIuQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script>
-    document.body.addEventListener('htmx:configRequest', (event) => {
-      const token = document.querySelector('meta[name="csrf-token"]').content;
-      if (token) {
-        event.detail.headers['X-CSRFToken'] = token;
-      }
-    });
-</script>
-  
 </html>

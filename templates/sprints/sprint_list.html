@@ -1,100 +1,152 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container mx-auto p-6">
-    <h2 class="text-2xl font-semibold mb-4">Sprints for {{ project.name }}</h2>
-    <div x-data="{ open: false }">
-      <!-- Button to open modal -->
-      <a href="#" x-on:click.prevent="open = true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Sprint</a>
+  <h2 class="text-2xl font-semibold mb-4">Sprints for {{ project.name }}</h2>
+  <div x-data="{ open: false }">
+    <!-- Button to open modal -->
+    <a
+      href="#"
+      x-on:click.prevent="open = true"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >Start Sprint</a
+    >
 
-      <!-- Modal -->
-      <div x-show="open" x-cloak class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-          <div class="bg-white p-6 rounded shadow-lg w-96">
-              <h3 class="text-xl font-semibold mb-4">Start Sprint</h3>
-              
-              <!-- Form for dates -->
-              <form method="post" 
-                  hx-post="{% url 'projects:start_sprint' %}" 
-                  hx-target="body"
-                  hx-swap="beforeend"
-                  hx-trigger="submit"
-              >
-                  {% csrf_token %}
-                  <input type="hidden" name="project_id" value="{{ project.id }}">
-                  <div class="mb-4">
-                      <label for="name" class="block text-gray-700">Name</label>
-                      <input type="text" name="name" id="name" class="w-full p-2 border border-gray-300 rounded">
-                  </div>
-                  <div class="mb-4">
-                      <label for="start_date" class="block text-gray-700">Start Date</label>
-                      <input type="date" name="start_date" id="start_date" class="w-full p-2 border border-gray-300 rounded">
-                  </div>
-                  
-                  <div class="mb-4">
-                      <label for="end_date" class="block text-gray-700">End Date</label>
-                      <input type="date" name="end_date" id="end_date" class="w-full p-2 border border-gray-300 rounded">
-                  </div>
-                  
-                  <div class="flex justify-end">
-                      <button type="button" x-on:click="open = false" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2">Cancel</button>
-                      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
-                  </div>
-              </form>
+    <!-- Modal -->
+    <div
+      x-show="open"
+      x-cloak
+      class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50"
+    >
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h3 class="text-xl font-semibold mb-4">Start Sprint</h3>
+
+        <!-- Form for dates -->
+        <form
+          method="post"
+          hx-post="{% url 'projects:start_sprint' %}"
+          hx-target="body"
+          hx-swap="beforeend"
+          hx-trigger="submit"
+        >
+          {% csrf_token %}
+          <input type="hidden" name="project_id" value="{{ project.id }}" />
+          <div class="mb-4">
+            <label for="name" class="block text-gray-700">Name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
           </div>
+          <div class="mb-4">
+            <label for="start_date" class="block text-gray-700"
+              >Start Date</label
+            >
+            <input
+              type="date"
+              name="start_date"
+              id="start_date"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="end_date" class="block text-gray-700">End Date</label>
+            <input
+              type="date"
+              name="end_date"
+              id="end_date"
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="button"
+              x-on:click="open = false"
+              class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-    <ul class="divide-y divide-gray-200">
+  </div>
+  <ul class="divide-y divide-gray-200">
     {% for sprint in sprints %}
-        <li class="py-4">
-        <div class="text-lg font-medium">{{ sprint.name }}</div>
-        <div class="text-sm text-gray-500">
-            {{ sprint.start_date }} to {{ sprint.end_date }}
-        </div>
-        <div class="flex gap-2">
-            <button 
-              hx-get="{% url 'projects:sprint_edit' sprint.id %}" 
-              hx-target="#modal-content" 
-              hx-trigger="click" 
-              hx-swap="innerHTML"
-              class="text-blue-600 hover:underline"
-            >
-              Edit
-            </button>
-            <button 
-              hx-get="{% url 'projects:sprint_delete' sprint.id %}" 
-              hx-target="#modal-content" 
-              hx-trigger="click" 
-              hx-swap="innerHTML"
-              class="text-red-600 hover:underline"
-            >
-              Delete
-            </button>
-          </div>
-        </li>
+    <li class="py-4">
+      <div class="text-lg font-medium">{{ sprint.name }}</div>
+      <div class="text-sm text-gray-500">
+        {{ sprint.start_date }} to {{ sprint.end_date }}
+      </div>
+      <div class="flex gap-2">
+        <button id="create-task-btn" class="text-green-200 hover:underline">
+          Create Task
+        </button>
+        <button
+          hx-get="{% url 'projects:sprint_edit' sprint.id %}"
+          hx-target="#modal-content"
+          hx-trigger="click"
+          hx-swap="innerHTML"
+          class="text-blue-600 hover:underline"
+        >
+          Edit
+        </button>
+        <button
+          hx-get="{% url 'projects:sprint_delete' sprint.id %}"
+          hx-target="#modal-content"
+          hx-trigger="click"
+          hx-swap="innerHTML"
+          class="text-red-600 hover:underline"
+        >
+          Delete
+        </button>
+      </div>
+    </li>
     {% empty %}
-        <li class="py-4 text-gray-500">No sprints available for this project.</li>
+    <li class="py-4 text-gray-500">No sprints available for this project.</li>
     {% endfor %}
-    </ul>
+  </ul>
 </div>
 
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50" x-data="{ open: false }" x-show="open" x-transition>
-    <div class="bg-white rounded-lg p-6 w-full max-w-md" id="modal-content">
-        <!-- HTMX will load content here -->
+<!-- Modal Container -->
+<div
+  id="modal-container"
+  x-data="{ show: false }"
+  x-show="show"
+  style="display: none"
+>
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+  >
+    <div
+      class="bg-white p-6 rounded shadow-lg w-full max-w-md"
+      id="modal-content"
+    >
+      <!-- Form content will be injected here -->
     </div>
+  </div>
 </div>
-  
-<script>
-document.body.addEventListener('htmx:afterSwap', (e) => {
-    if (e.detail.target.id === "modal-content") {
-    document.getElementById("modal").style.display = "flex";
-    }
-});
 
-document.body.addEventListener('htmx:afterRequest', (e) => {
-    if (e.detail.target.id === "modal-content" && e.detail.xhr.status === 204) {
-    document.getElementById("modal").style.display = "none";
-    location.reload();
+<script>
+  document.body.addEventListener("htmx:afterSwap", (e) => {
+    if (e.detail.target.id === "modal-content") {
+      document.getElementById("modal").style.display = "flex";
     }
-});
+  });
+
+  document.body.addEventListener("htmx:afterRequest", (e) => {
+    if (e.detail.target.id === "modal-content" && e.detail.xhr.status === 204) {
+      document.getElementById("modal").style.display = "none";
+      location.reload();
+    }
+  });
 </script>
 {% endblock %}

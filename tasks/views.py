@@ -1,34 +1,66 @@
-from django.views.decorators.http import require_POST
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Sprint, Epic, Task, SubTask
+from .forms import EpicForm, TaskForm, SubTaskForm
+from django.http import HttpResponse
 
-from .forms import TaskForm
-from .models import Task
+# --- Epic Views ---
+def epic_list(request, sprint_id):
+    sprint = get_object_or_404(Sprint, id=sprint_id)
+    epics = Epic.objects.filter(sprint=sprint)
+    return render(request, 'epic/list.html', {'sprint': sprint, 'epics': epics})
 
-@require_POST
-def update_status(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
-    new_status = request.POST.get('status')
+def epic_create(request, sprint_id):
+    sprint = get_object_or_404(Sprint, id=sprint_id)
+    form = EpicForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        epic = form.save(commit=False)
+        epic.sprint = sprint
+        epic.save()
+        return redirect('epic_list', sprint_id=sprint.id)
+    return render(request, 'epic/form.html', {'form': form})
 
-    if new_status == 'PENDING' and not task.pending_reason:
-        # Show modal to input pending reason (you can extend this)
-        pass
+def epic_update(request, pk):
+    epic = get_object_or_404(Epic, pk=pk)
+    form = EpicForm(request.POST or None, instance=epic)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('epic_list', sprint_id=epic.sprint.id)
+    return render(request, 'epic/form.html', {'form': form})
 
-    task.status = new_status
-    task.save()
+def epic_delete(request, pk):
+    epic = get_object_or_404(Epic, pk=pk)
+    sprint_id = epic.sprint.id
+    epic.delete()
+    return redirect('epic_list', sprint_id=sprint_id)
 
-    return render(request, 'tasks/partials/task_card.html', {'task': task})
+def task_list(request, sprint_id):
+    sprint = get_object_or_404(Sprint, id=sprint_id)
+    tasks = Task.objects.filter(sprint=sprint)
+    return render(request, 'tasks/list.html', {'sprint': sprint, 'task': tasks})
 
-
-
-def create_task(request):
-    if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            task = form.save(commit=False)
-            task.status = 'OPEN'  # default
-            task.save()
-            return redirect('sprint_detail', sprint_id=task.epic.sprint.id)  # after saving, go to sprint
+def task_create(request):
+    if request.method == 'POST' and form.is_valid():
+        sprint = get_object_or_404(Sprint, id=sprint_id)
+        form = TaskForm(request.POST or None)
+        task = form.save(commit=False)
+        task.sprint = sprint
+        task.save()
+        return redirect('task_list', sprint_id=sprint.id)
     else:
         form = TaskForm()
 
     return render(request, 'tasks/task_form.html', {'form': form})
+
+def task_update(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    form = EpicForm(request.POST or None, instance=task)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('task_list', sprint_id=task.sprint.id)
+    return render(request, 'task/form.html', {'form': form})
+
+def task_delete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    sprint_id = task.sprint.id
+    task.delete()
+    return redirect('task_list', sprint_id=sprint_id)

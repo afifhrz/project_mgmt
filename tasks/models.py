@@ -18,6 +18,7 @@ class Task(models.Model):
         ('CANCELLED', 'Cancelled'),
         ('REOPEN', 'Reopen'),
     ]
+    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
     epic = models.ForeignKey(Epic, on_delete=models.CASCADE, related_name='tasks', null=True)
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
