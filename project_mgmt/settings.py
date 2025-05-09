@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tasks',
     'projects',
-    'django_htmx',
     "crispy_forms",
     "crispy_tailwind",
 ]
@@ -56,7 +55,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'project_mgmt.urls'
@@ -87,8 +85,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'project_management',
-        'USER': 'root',
-        'PASSWORD': '',
+        'USER': 'sla_leap',
+        'PASSWORD': 'tsp1234',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {

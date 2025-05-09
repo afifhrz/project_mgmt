@@ -40,7 +40,7 @@ def task_list(request, sprint_id):
 
 def task_create(request):
     if request.method == 'POST' and form.is_valid():
-        sprint = get_object_or_404(Sprint, id=sprint_id)
+        sprint = get_object_or_404(Sprint, id=request.POST.sprint_id)
         form = TaskForm(request.POST or None)
         task = form.save(commit=False)
         task.sprint = sprint
