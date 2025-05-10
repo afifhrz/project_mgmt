@@ -45,7 +45,7 @@ class ProjectDetailView(DetailView):
     context_object_name = 'project'  # This makes 'project' available in the template
 
 @user_is_gm_or_agm
-def start_sprint(request):
+def sprint_create(request):
     project = get_object_or_404(Project, id=request.POST["project_id"])
 
     if request.method == 'POST':

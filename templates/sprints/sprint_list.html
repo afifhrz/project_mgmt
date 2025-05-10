@@ -1,15 +1,29 @@
-{% extends "base.html" %} {% block content %}
-<div class="container mx-auto p-6">
-  <h2 class="text-2xl font-semibold mb-4">Sprints for {{ project.name }}</h2>
-  <ul class="divide-y divide-gray-200">
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 fw-semibold mb-4">Sprints for {{ project.name }}</h2>
+    <button
+      data-project-id="{{ project.id }}"
+      data-url="{% url 'projects:sprint_create' %}" 
+      class="btn btn-primary"
+      id="openSprintModal"
+    >
+      + Create Sprint
+    </button>
+  </div>
+  <ul class="list-group">
     {% for sprint in sprints %}
-    <li class="py-4">
-      <div class="text-lg font-medium">{{ sprint.name }}</div>
-      <div class="text-sm text-gray-500">
+    <li class="list-group-item">
+      <div class="fw-medium">{{ sprint.name }}</div>
+      <div class="text-muted small">
         {{ sprint.start_date }} to {{ sprint.end_date }}
       </div>
-      <div class="flex gap-2">
-        <button id="createTaskBtn" data-sprint-id="{{ sprint.id }}" class="text-green-600 hover:underline">
+      <div class="mt-2 d-flex gap-2">
+        <button
+          id="createTaskBtn"
+          data-sprint-id="{{ sprint.id }}"
+          class="btn btn-link text-success p-0"
+        >
           Create Task
         </button>
         <button
@@ -17,7 +31,7 @@
           hx-target="#modal-content"
           hx-trigger="click"
           hx-swap="innerHTML"
-          class="text-blue-600 hover:underline"
+          class="btn btn-link text-primary p-0"
         >
           Edit
         </button>
@@ -26,69 +40,88 @@
           hx-target="#modal-content"
           hx-trigger="click"
           hx-swap="innerHTML"
-          class="text-red-600 hover:underline"
+          class="btn btn-link text-danger p-0"
         >
           Delete
         </button>
       </div>
     </li>
     {% empty %}
-    <li class="py-4 text-gray-500">No sprints available for this project.</li>
+    <li class="list-group-item text-muted">
+      No sprints available for this project.
+    </li>
     {% endfor %}
   </ul>
 </div>
 
-<!-- Modal Structure -->
-<div class="modal" id="taskModal" hidden>
-  <div class="modal-content">
-    <form id="taskForm">
-      <input type="hidden" id="sprintId" name="sprint_id" />
-      <label>Task Name:</label><br />
-      <input type="text" name="task_name" required /><br /><br />
-      <button type="submit">Submit</button>
-    </form>
+<div
+  class="modal fade"
+  id="sprintModal"
+  tabindex="-1"
+  aria-labelledby="sprintModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="sprintForm" method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="sprintModalLabel">Create Sprint</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="project_id" id="projectIdInput" />
+          <div class="mb-3">
+            <label for="sprintName" class="form-label">Sprint Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="sprintName"
+              name="name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input
+              type="date"
+              class="form-control"
+              id="startDate"
+              name="start_date"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input
+              type="date"
+              class="form-control"
+              id="endDate"
+              name="end_date"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
 {% endblock %} {% block script %}
-<script>
-  $(document).ready(function () {
-    // Show modal and pass sprint ID
-    $("#createTaskBtn").click(function () {
-      var sprintId = $(this).data("sprint-id");
-      $("#sprintId").val(sprintId);
-      $("#taskModal").show();
-    });
-
-    // Handle form submission
-    $("#taskForm").submit(function (e) {
-      e.preventDefault();
-      var formData = $(this).serialize();
-
-      // Simulate an AJAX submission (you can replace with real AJAX)
-      $.ajax({
-        url: "/create-task", // replace with your endpoint
-        method: "POST",
-        data: formData,
-        success: function (response) {
-          $.notify("Task created successfully!", "success");
-
-          setTimeout(function () {
-            window.location.href = "/sprint/tasks"; // redirect URL
-          }, 2000);
-        },
-        error: function () {
-          $.notify("Failed to create task.", "error");
-        },
-      });
-    });
-
-    // Optional: hide modal when clicking outside the content
-    $("#taskModal").click(function (e) {
-      if ($(e.target).is("#taskModal")) {
-        $(this).fadeOut();
-      }
-    });
-  });
-</script>
+<script src="{% static 'js/sprints.js' %}"></script>
 {% endblock %}

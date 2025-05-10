@@ -22,7 +22,6 @@ from projects import views as projects
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', projects.home, name='home'),
-    # path('users/', include('users.urls')),
     path('tasks/', include('tasks.urls')),    
     path('', include('projects.urls', namespace='projects')),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
