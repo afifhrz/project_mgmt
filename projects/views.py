@@ -1,18 +1,14 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.template.loader import render_to_string # type: ignore
+from datetime import datetime
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy # type: ignore
 
 from django.utils.html import escape
-from django.views.generic import DetailView, ListView, UpdateView, DeleteView
-
-from utils.alert import getErrorAlertScript, getSuccessAlertScript # type: ignore
-
 from .decorators import user_is_gm_or_agm
 from projects.models import Sprint
 from tasks.models import Task
-from .forms import ProjectForm, SprintForm
 from .models import Project
 
 @login_required
@@ -21,128 +17,117 @@ def home(request):
     return render(request, 'home.html', {'projects': projects})
 
 @user_is_gm_or_agm
-def project_create(request):
-    if request.method == 'POST':
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            project = form.save(commit=False)
-            project.created_by = request.user  # assume user is logged in
-            project.save()
-            return redirect('home')  # go back to home after create
-    else:
-        form = ProjectForm()
-    return render(request, 'projects/project_form.html', {'form': form})
+def projects_create(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+
+        if not name:
+            return JsonResponse({"error": "Project name is required."}, status=400)
+
+        project = Project.objects.create(
+            name=name,
+            description=description,
+            created_by=request.user,
+        )
+
+        return JsonResponse({"message": "Project created successfully.", "project_id": project.id})
+
+    return HttpResponseBadRequest("Invalid request method.")
 
 @user_is_gm_or_agm
-def project_delete(request, id):
+def projects_delete(request, id):
     project = get_object_or_404(Project, id=id)
     project.delete()
     return redirect('home')
 
-class ProjectDetailView(DetailView):
-    model = Project
-    template_name = 'projects/project_detail.html'  # This will link to the above template
-    context_object_name = 'project'  # This makes 'project' available in the template
+@user_is_gm_or_agm
+def projects_detail(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    return render(request, 'projects/projects_detail.html', {'project': project})
 
 @user_is_gm_or_agm
-def sprint_create(request):
-    project = get_object_or_404(Project, id=request.POST["project_id"])
-
+def sprints_create(request):
     if request.method == 'POST':
-        form = SprintForm(request.POST)
-        if form.is_valid():
-            start = form.cleaned_data['start_date']
-            end = form.cleaned_data['end_date']
-            name = form.cleaned_data['name']
+        project = get_object_or_404(Project, id=request.POST["project_id"])
+        name = request.POST.get('name', '').strip()
+        start = request.POST.get('start_date')
+        end = request.POST.get('end_date')
 
-            # Check for overlapping sprints
-            overlapping = Sprint.objects.filter(
-                project=project,
-                start_date__lte=end,
-                end_date__gte=start,
-            ).exists()
+        if not name or not start or not end:
+            return JsonResponse({"status": "error", "message": "All fields are required."}, status=400)
 
-            if overlapping:
-                message = escape("Sprint dates overlap with an existing sprint.")
-                return HttpResponse(f"{getErrorAlertScript(message)}", content_type="text/html")
+        # Convert dates
+        try:
+            start_date = datetime.strptime(start, "%Y-%m-%d").date()
+            end_date = datetime.strptime(end, "%Y-%m-%d").date()
+        except ValueError:
+            return JsonResponse({"status": "error", "message": "Invalid date format."}, status=400)
 
-            # Save new sprint if no overlap
-            Sprint.objects.create(
-                project=project,
-                name=name,
-                start_date=start,
-                end_date=end,
-                created_by=request.user,
-            )
+        if start_date > end_date:
+            return JsonResponse({"status": "error", "message": "Start date cannot be after end date."}, status=400)
 
-            message = escape("Sprint created successfully!")
-            redirect_url = reverse_lazy('projects:sprint_list', kwargs={'project_id': project.id})
+        overlapping = Sprint.objects.filter(
+            project=project,
+            start_date__lte=end_date,
+            end_date__gte=start_date,
+        ).exists()
 
-            return HttpResponse(f"{getSuccessAlertScript(message, redirect_url)}", content_type="text/html")
+        if overlapping:
+            return JsonResponse({"status": "error", "message": "Sprint dates overlap with an existing sprint."}, status=400)
 
-        # Invalid form
-        message = escape("Invalid form submission.")
-        return HttpResponse(f"{getErrorAlertScript(message)}", content_type="text/html")
+        # Save new sprint
+        Sprint.objects.create(
+            project=project,
+            name=name,
+            start_date=start_date,
+            end_date=end_date,
+            created_by=request.user,
+        )
 
-    html = render_to_string("components/error.html", {"message": "Invalid request method."})
-    return HttpResponse(html)
-
-class SprintListView(ListView):
-    model = Sprint
-    template_name = 'sprints/sprint_list.html'
-    context_object_name = 'sprints'
-
-    def get_queryset(self):
-        self.project = Project.objects.get(pk=self.kwargs['project_id'])
-        return Sprint.objects.filter(project=self.project).order_by('-start_date')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['project'] = self.project
-        return context
-
-class SprintUpdateView(UpdateView):
-    model = Sprint
-    form_class = SprintForm
-    template_name = 'sprints/sprint_form.html'
+        return JsonResponse({"status": "success"})
     
-    def form_valid(self, form):
-        form.save()
-        return HttpResponse(status=204)  # Triggers modal close
+    return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
 
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
 
 @user_is_gm_or_agm
-def sprint_delete_view(request, pk):
+def sprints_list(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    sprints = Sprint.objects.filter(project=project).order_by('-start_date')
+    return render(request, 'sprints/sprints_list.html', {'sprints': sprints, 'project': project})
+
+@user_is_gm_or_agm
+def sprints_update(request, pk):
     sprint = get_object_or_404(Sprint, pk=pk)
 
     if request.method == "POST":
-        project_id = sprint.project.id
+        name = request.POST.get("name")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+
+        if not name or not start_date or not end_date:
+            return HttpResponseBadRequest("All fields are required.")
+
+        sprint.name = name
+        sprint.start_date = start_date
+        sprint.end_date = end_date
+        sprint.save()
+        messages.success(request, "Sprint updated successfully!")
+        return HttpResponseRedirect(reverse('projects:sprints_list', kwargs={'project_id': sprint.project.id}))
+
+    return render(request, "sprints/sprints_update.html", {"sprint": sprint})
+
+@user_is_gm_or_agm
+def sprints_delete(request, pk):
+    print("ok")
+    sprint = get_object_or_404(Sprint, pk=pk)
+
+    if request.method == 'POST':
         sprint.delete()
-        success_url = reverse('projects:sprint_list', kwargs={'project_id': project_id})
+        messages.success(request, "Sprint deleted successfully!")
+        return HttpResponseRedirect(reverse('projects:sprints_list', kwargs={'project_id': sprint.project.id}))
 
-        # If the request is from HTMX, return an alert and the redirect
-        if request.headers.get('HX-Request'):
-            message = "Sprint deleted successfully!"
-            alert_html = f"""
-            <div class="alert alert-success" role="alert">
-                {message}
-            </div>
-            <script>
-                $.notify('{message}', 'success');
-                setTimeout(() => {{
-                    window.location.href = '{success_url}';
-                }}, 2000);
-            </script>
-            """
-            response = HttpResponse(alert_html, content_type="text/html")
-            response['HX-Redirect'] = success_url
-            return response
-
-        return redirect(success_url)
-
-    return render(request, 'sprints/sprint_confirm_delete.html', {'object': sprint})
+    return render(request, 'sprints/sprints_delete.html', {'sprint': sprint})
 
 def sprint_detail(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
@@ -157,5 +142,23 @@ def sprint_detail(request, sprint_id):
 
     return render(request, 'sprints/sprint_detail.html', {
         'sprint': sprint,
+        'tasks_by_status': tasks_by_status,
+    })
+
+# Task
+@user_is_gm_or_agm
+def tasks_list(request, sprint_id):
+    sprint = get_object_or_404(Sprint, id=sprint_id)
+    tasks = Task.objects.filter(epic__sprint=sprint)
+
+    tasks_by_status = {
+        'OPEN': tasks.filter(status='OPEN'),
+        'PROGRESS': tasks.filter(status='PROGRESS'),
+        'PENDING': tasks.filter(status='PENDING'),
+        'DONE': tasks.filter(status='DONE'),
+    }
+
+    return render(request, 'tasks/tasks_list.html', {
+        'tasks': tasks,
         'tasks_by_status': tasks_by_status,
     })

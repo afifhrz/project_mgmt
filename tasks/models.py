@@ -5,7 +5,7 @@ from projects.models import Sprint
 
 # Create your models here.
 class Epic(models.Model):
-    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
+    sprint = models.ForeignKey(Sprint, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
 
@@ -18,9 +18,9 @@ class Task(models.Model):
         ('CANCELLED', 'Cancelled'),
         ('REOPEN', 'Reopen'),
     ]
-    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
-    epic = models.ForeignKey(Epic, on_delete=models.CASCADE, related_name='tasks', null=True)
-    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    sprint = models.ForeignKey(Sprint, on_delete=models.DO_NOTHING)
+    epic = models.ForeignKey(Epic, on_delete=models.DO_NOTHING, related_name='tasks', null=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='OPEN')
@@ -29,7 +29,7 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class SubTask(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
+    task = models.ForeignKey(Task, on_delete=models.DO_NOTHING, related_name='subtasks')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=Task.STATUS_CHOICES, default='OPEN')

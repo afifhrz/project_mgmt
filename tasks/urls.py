@@ -4,5 +4,6 @@ from .views import *
 app_name = 'tasks'
 
 urlpatterns = [
-    path('create/', task_create, name='create_task'),
+    path('tasks/', tasks_create, name='tasks_create'),
+    path('<int:sprint_id>/tasks-list', tasks_list, name="tasks_list")
 ]

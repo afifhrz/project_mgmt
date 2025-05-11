@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Sprint, Epic, Task, SubTask
-from .forms import EpicForm, TaskForm, SubTaskForm
-from django.http import HttpResponse
+from .models import Sprint, Epic, Task
+from .forms import EpicForm, TaskForm 
 
 # --- Epic Views ---
 def epic_list(request, sprint_id):
@@ -33,12 +32,12 @@ def epic_delete(request, pk):
     epic.delete()
     return redirect('epic_list', sprint_id=sprint_id)
 
-def task_list(request, sprint_id):
+def tasks_list(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
     tasks = Task.objects.filter(sprint=sprint)
-    return render(request, 'tasks/list.html', {'sprint': sprint, 'task': tasks})
+    return render(request, 'tasks/tasks_list.html', {'sprint': sprint, 'task': tasks})
 
-def task_create(request):
+def tasks_create(request):
     if request.method == 'POST' and form.is_valid():
         sprint = get_object_or_404(Sprint, id=request.POST.sprint_id)
         form = TaskForm(request.POST or None)

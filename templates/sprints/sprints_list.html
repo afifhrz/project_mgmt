@@ -4,7 +4,7 @@
     <h2 class="h4 fw-semibold mb-4">Sprints for {{ project.name }}</h2>
     <button
       data-project-id="{{ project.id }}"
-      data-url="{% url 'projects:sprint_create' %}" 
+      data-url="{% url 'projects:sprints_create' %}"
       class="btn btn-primary"
       id="openSprintModal"
     >
@@ -19,30 +19,23 @@
         {{ sprint.start_date }} to {{ sprint.end_date }}
       </div>
       <div class="mt-2 d-flex gap-2">
-        <button
-          id="createTaskBtn"
-          data-sprint-id="{{ sprint.id }}"
+        <a
+          href="{% url 'tasks:tasks_list' sprint.id %}"
           class="btn btn-link text-success p-0"
         >
-          Create Task
+          View Tasks
+        </a>
+        <button
+          class="btn btn-link text-primary p-0 openEditSprintModal"
+          data-url="{% url 'projects:sprints_edit' sprint.id %}"
+        >
+          Edit Sprint
         </button>
         <button
-          hx-get="{% url 'projects:sprint_edit' sprint.id %}"
-          hx-target="#modal-content"
-          hx-trigger="click"
-          hx-swap="innerHTML"
-          class="btn btn-link text-primary p-0"
+          class="btn btn-link text-danger p-0 openDeleteSprintModal"
+          data-url="{% url 'projects:sprints_delete' sprint.id %}"
         >
-          Edit
-        </button>
-        <button
-          hx-get="{% url 'projects:sprint_delete' sprint.id %}"
-          hx-target="#modal-content"
-          hx-trigger="click"
-          hx-swap="innerHTML"
-          class="btn btn-link text-danger p-0"
-        >
-          Delete
+          Delete Sprint
         </button>
       </div>
     </li>
@@ -118,6 +111,15 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Modal -->
+<div class="modal fade" id="sprintModalEdit" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" id="sprintModalContent">
+      <!-- AJAX content goes here -->
     </div>
   </div>
 </div>

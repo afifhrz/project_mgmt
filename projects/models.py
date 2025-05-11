@@ -5,11 +5,11 @@ from django.contrib.auth import get_user_model
 class Project(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    created_by = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    created_by = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Sprint(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=255, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()

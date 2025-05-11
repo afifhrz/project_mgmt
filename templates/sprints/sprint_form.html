@@ -1,6 +1,0 @@
-{% load crispy_forms_tags %}
-<form method="post" hx-post="{% url 'projects:sprint_edit' object.id %}" hx-target="#modal-content" hx-swap="innerHTML">
-    {% csrf_token %}
-    {% crispy form %}
-</form>
-  
