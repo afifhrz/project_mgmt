@@ -18,3 +18,12 @@ class Sprint(models.Model):
 
     def __str__(self):
             return f"{self.name} ({self.start_date} - {self.end_date})"
+
+class ProjectAssignment(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='assignments')
+    user = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING, related_name='assigned_projects')
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    assigned_by = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING, related_name='assigned_by')
+
+    class Meta:
+        unique_together = ('project', 'user')

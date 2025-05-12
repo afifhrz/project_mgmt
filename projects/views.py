@@ -1,20 +1,61 @@
 from datetime import datetime
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse, reverse_lazy # type: ignore
+from django.urls import reverse # type: ignore
+from django.contrib.auth.models import Group, User
 
-from django.utils.html import escape
 from .decorators import user_is_gm_or_agm
 from projects.models import Sprint
 from tasks.models import Task
-from .models import Project
+from .models import Project, ProjectAssignment
 
 @login_required
 def home(request):
     projects = Project.objects.all().order_by('-created_at')
     return render(request, 'home.html', {'projects': projects})
+
+@user_is_gm_or_agm
+def projects_management(request):
+    projects = Project.objects.filter(created_by=request.user)
+    pic_group = Group.objects.get(name="Person In Charge")
+    users = pic_group.user_set.all()
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        project_id = request.POST.get("project_id")
+        user_id = request.POST.get("user_id")
+
+        project = get_object_or_404(Project, id=project_id, created_by=request.user)
+        user = get_object_or_404(User, id=user_id)
+
+        if action == "assign":
+            _, created = ProjectAssignment.objects.get_or_create(project=project, user=user, assigned_by=request.user)
+            return JsonResponse({"status": "assigned" if created else "already_assigned"})
+        elif action == "unassign":
+            ProjectAssignment.objects.filter(project=project, user=user).delete()
+            return JsonResponse({"status": "unassigned"})
+
+    return render(request, "projects/projects_management.html", {
+        "projects": projects,
+        "users": users,
+    })
+
+@login_required
+def project_assignments_api(request, project_id):
+    project = get_object_or_404(Project, id=project_id, created_by=request.user)
+    assignments = ProjectAssignment.objects.filter(project=project).select_related('user')
+
+    data = [
+        {
+            "id": assignment.user.id,
+            "name": assignment.user.get_full_name(),
+            "email": assignment.user.email,
+        }
+        for assignment in assignments
+    ]
+    return JsonResponse(data, safe=False)
 
 @user_is_gm_or_agm
 def projects_create(request):

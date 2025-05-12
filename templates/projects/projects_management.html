@@ -1,0 +1,37 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="container mt-4">
+    <h2>Project Management</h2>
+  
+    <div class="row mb-3">
+      <div class="col">
+        <label>Project</label>
+        <select class="form-select" id="projectSelect" required>
+          <option value="">Select Project Name</option>
+          {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <label>PIC</label>
+        <select class="form-select" id="userSelect">
+          {% for user in users %}
+            <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto d-flex align-items-end">
+        <button class="btn btn-success me-2" id="assignBtn">Assign</button>
+      </div>
+    </div>
+  
+    <div id="assignmentTable" class="mt-4"></div>
+  </div>
+  
+  <!-- CSRF -->
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+  
+{% endblock %} {% block script %}
+<script src="{% static 'js/projects/projects_management.js' %}"></script>
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.min.js"></script>
+{% endblock %}

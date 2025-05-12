@@ -1,0 +1,60 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$9oz6YXn96Y6PFeTtWoVbN5$v6co+KP8JkGOdK8ns3WZ5ZaYlYvJp5Y57sEvYFLNMlE=",
+            "last_login": "2025-05-12T03:35:21.358Z",
+            "is_superuser": true,
+            "username": "admin",
+            "first_name": "",
+            "last_name": "",
+            "email": "admin@gmail.com",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2025-05-12T03:35:10.240Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$DwBzC1gAbV9hj98pegBl8e$qCZd2WesT+N/c0UqASaBI2kHA0uaizR1fQUotGKaUiE=",
+            "last_login": "2025-05-12T03:36:54Z",
+            "is_superuser": false,
+            "username": "gm_user",
+            "first_name": "Ahmad Afif Aulia",
+            "last_name": "Hariz",
+            "email": "ahmadafif.hariz@gmail.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-05-12T03:36:32Z",
+            "groups": [
+                1
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$URugZ2L6nPByqSghhlaMbx$1Wv24KdWYGEKO/NKJBPwJk3JKNAQOo8mdjl1+EcCJP8=",
+            "last_login": "2025-05-12T03:37:48Z",
+            "is_superuser": false,
+            "username": "pic_user",
+            "first_name": "Ravel",
+            "last_name": "Superb",
+            "email": "afif.sclit@gmail.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-05-12T03:37:23Z",
+            "groups": [
+                2
+            ],
+            "user_permissions": []
+        }
+    }
+]

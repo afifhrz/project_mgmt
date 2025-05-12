@@ -142,3 +142,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8001', # For local development
+]
+
+FIXTURE_DIRS = [
+    BASE_DIR / 'seeding'
+]
