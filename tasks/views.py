@@ -1,6 +1,11 @@
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Sprint, Epic, Task
-from .forms import EpicForm, TaskForm 
+
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+from tasks.models.enums import Status
+from .models.models import Sprint, Epic, Task
 
 # --- Epic Views ---
 def epic_list(request, sprint_id):
@@ -35,28 +40,49 @@ def epic_delete(request, pk):
 def tasks_list(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
     tasks = Task.objects.filter(sprint=sprint)
-    return render(request, 'tasks/tasks_list.html', {'sprint': sprint, 'task': tasks})
+    status_choices = Status.choices
+    
+    # Filter users assigned to this sprint's project
+    pics = User.objects.filter(assigned_projects__project=sprint.project).distinct()
+
+    return render(request, 'tasks/tasks_list.html', {
+        'sprint': sprint,
+        'tasks': tasks,
+        'pics': pics,
+        'status_choices': status_choices
+    })
 
 def tasks_create(request):
-    if request.method == 'POST' and form.is_valid():
-        sprint = get_object_or_404(Sprint, id=request.POST.sprint_id)
-        form = TaskForm(request.POST or None)
-        task = form.save(commit=False)
-        task.sprint = sprint
+    if request.method == 'POST':
+        sprint_id = request.POST.get('sprint_id')
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        status = request.POST.get('status')
+        pic_id = request.POST.get('pic_id')
+
+        if not all([sprint_id, title, status, pic_id]):
+            return JsonResponse({'error': 'Please fill in all required fields!'}, status=400)
+
+        sprint = get_object_or_404(Sprint, id=sprint_id)
+
+        Task.objects.create(
+            sprint=sprint,
+            title=title,
+            description=description,
+            status=status,
+            assigned_to=User.objects.filter(pk=pic_id).first()
+        )
+
+        return JsonResponse({'message': 'Task created successfully!'}, status=200)
+
+    return JsonResponse({'error': 'Invalid method!'}, status=400)
+
+def tasks_update_status(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    if request.method == 'POST':
+        task.status = request.POST.get('status')
         task.save()
-        return redirect('task_list', sprint_id=sprint.id)
-    else:
-        form = TaskForm()
-
-    return render(request, 'tasks/task_form.html', {'form': form})
-
-def task_update(request, pk):
-    task = get_object_or_404(Task, pk=pk)
-    form = EpicForm(request.POST or None, instance=task)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('task_list', sprint_id=task.sprint.id)
-    return render(request, 'task/form.html', {'form': form})
+        return redirect('tasks:tasks_list', sprint_id=task.sprint.id)
 
 def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk)

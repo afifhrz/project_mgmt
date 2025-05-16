@@ -1,5 +1,3 @@
-// File: tasks.js
-
 document.addEventListener("DOMContentLoaded", function () {
     const createTaskForm = document.getElementById("createTaskForm");
     const createTaskModal = new bootstrap.Modal(document.getElementById("createTaskModal"));

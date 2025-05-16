@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group, User
 
 from .decorators import user_is_gm_or_agm
 from projects.models import Sprint
-from tasks.models import Task
+from tasks.models.models import Task
 from .models import Project, ProjectAssignment
 
 @login_required

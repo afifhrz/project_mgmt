@@ -29,18 +29,18 @@
         </h2>
         <div class="btn-group btn-group-sm">
           {% if task.status != 'DONE' %}
-          <form method="post" action="{% url 'tasks:update_status' task.id %}">
+          <form method="post" class="me-3" action="{% url 'tasks:tasks_update_status' task.id %}">
             {% csrf_token %}
             <input type="hidden" name="status" value="PROGRESS" />
             <button class="btn btn-success">Progress</button>
           </form>
-          <form method="post" action="{% url 'tasks:update_status' task.id %}">
+          <form method="post" class="me-3" action="{% url 'tasks:tasks_update_status' task.id %}">
             {% csrf_token %}
             <input type="hidden" name="status" value="PENDING" />
             <button class="btn btn-warning text-white">Pending</button>
           </form>
           {% endif %}
-          <form method="post" action="{% url 'tasks:update_status' task.id %}">
+          <form method="post" class="" action="{% url 'tasks:tasks_update_status' task.id %}">
             {% csrf_token %}
             <input type="hidden" name="status" value="DONE" />
             <button class="btn btn-primary">Done</button>
@@ -50,8 +50,8 @@
       <div class="collapse" id="taskCollapse{{ task.id }}">
         <div class="card-body">
           <p><strong>Description:</strong> {{ task.description }}</p>
-          <p><strong>Status:</strong> {{ task.get_status_display }}</p>
-          <p><strong>PIC:</strong> {{ task.pic.get_full_name }}</p>
+          <p><strong>Status:</strong> {{ task.status }}</p>
+          <p><strong>PIC:</strong> {{ task.assigned_to.get_full_name }}</p>
         </div>
       </div>
     </div>
@@ -70,7 +70,7 @@
 >
   <div class="modal-dialog">
     <div class="modal-content">
-        <form id="createTaskForm" data-url="{% url 'tasks:tasks_create' %}">
+      <form id="createTaskForm" data-url="{% url 'tasks:tasks_create' %}">
         {% csrf_token %}
         <div class="modal-header">
           <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
@@ -106,8 +106,18 @@
           <div class="mb-3">
             <label for="picSelect" class="form-label">PIC</label>
             <select class="form-select" name="pic_id" id="picSelect" required>
-              {% for user in users %}
+              <option value="">Select Person In Charge</option>
+              {% for user in pics %}
               <option value="{{ user.id }}">{{ user.get_full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">Project Status</label>
+            <select class="form-select" name="status" id="status" required>
+              <option value="">Select Status</option>
+              {% for value, label in status_choices %}
+              <option value="{{ value }}">{{ label }}</option>
               {% endfor %}
             </select>
           </div>
