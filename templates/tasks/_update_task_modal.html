@@ -1,0 +1,40 @@
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <form id="editTaskForm">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" name="task_id" id="editTaskId">
+
+        <!-- Wrap editable fields -->
+        <div id="plannerFields">
+          <!-- replicate same inputs as create‑modal (omitted for brevity) -->
+        </div>
+
+        <!-- PIC‑only section -->
+        <div id="picFields">
+          <div class="mb-3">
+            <label class="form-label" for="editStatus">Status</label>
+            <select class="form-select" name="status" id="editStatus">
+              {% for value,label in status_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editUnatt">Unattained reason</label>
+            <textarea class="form-control" name="unattained_reason" id="editUnatt" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="submit">Save changes</button>
+      </div>
+    </form>
+  </div></div>
+</div>

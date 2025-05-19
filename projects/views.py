@@ -31,7 +31,7 @@ def projects_management(request):
         user = get_object_or_404(User, id=user_id)
 
         if action == "assign":
-            _, created = ProjectAssignment.objects.get_or_create(project=project, user=user, assigned_by=request.user)
+            _, created = ProjectAssignment.objects.get_or_create(project=project, user=user, created_by=request.user)
             return JsonResponse({"status": "assigned" if created else "already_assigned"})
         elif action == "unassign":
             ProjectAssignment.objects.filter(project=project, user=user).delete()

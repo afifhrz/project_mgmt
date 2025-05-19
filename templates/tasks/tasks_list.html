@@ -1,134 +1,23 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 fw-bold">{{ sprint.project.name }} - Sprint Board</h1>
-    <button
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#createTaskModal"
-      id="openCreateTaskModal"
-    >
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal" id="openCreateTaskModal">
       + Create Task
     </button>
   </div>
 
   <div class="d-flex flex-column gap-3">
-    {% for task in tasks %}
-    <div class="card">
-      <div
-        class="card-header d-flex justify-content-between align-items-center"
-      >
-        <h2
-          class="h5 mb-0"
-          data-bs-toggle="collapse"
-          data-bs-target="#taskCollapse{{ task.id }}"
-          role="button"
-          aria-expanded="false"
-        >
-          {{ task.title }}
-        </h2>
-        <div class="btn-group btn-group-sm">
-          {% if task.status != 'DONE' %}
-          <form method="post" class="me-3" action="{% url 'tasks:tasks_update_status' task.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="PROGRESS" />
-            <button class="btn btn-success">Progress</button>
-          </form>
-          <form method="post" class="me-3" action="{% url 'tasks:tasks_update_status' task.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="PENDING" />
-            <button class="btn btn-warning text-white">Pending</button>
-          </form>
-          {% endif %}
-          <form method="post" class="" action="{% url 'tasks:tasks_update_status' task.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="DONE" />
-            <button class="btn btn-primary">Done</button>
-          </form>
-        </div>
-      </div>
-      <div class="collapse" id="taskCollapse{{ task.id }}">
-        <div class="card-body">
-          <p><strong>Description:</strong> {{ task.description }}</p>
-          <p><strong>Status:</strong> {{ task.status }}</p>
-          <p><strong>PIC:</strong> {{ task.assigned_to.get_full_name }}</p>
-        </div>
-      </div>
-    </div>
-    {% empty %}
-    <p>No tasks available.</p>
-    {% endfor %}
+      {% include "tasks/_task_table.html" %}
   </div>
 </div>
-<!-- Modal -->
-<div
-  class="modal fade"
-  id="createTaskModal"
-  tabindex="-1"
-  aria-labelledby="createTaskModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="createTaskForm" data-url="{% url 'tasks:tasks_create' %}">
-        {% csrf_token %}
-        <div class="modal-header">
-          <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" name="sprint_id" value="{{ sprint.id }}" />
-          <div class="mb-3">
-            <label for="titleInput" class="form-label">Title</label>
-            <input
-              type="text"
-              class="form-control"
-              name="title"
-              id="titleInput"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="descInput" class="form-label">Description</label>
-            <textarea
-              class="form-control"
-              name="description"
-              id="descInput"
-              rows="3"
-              required
-            ></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="picSelect" class="form-label">PIC</label>
-            <select class="form-select" name="pic_id" id="picSelect" required>
-              <option value="">Select Person In Charge</option>
-              {% for user in pics %}
-              <option value="{{ user.id }}">{{ user.get_full_name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="status" class="form-label">Project Status</label>
-            <select class="form-select" name="status" id="status" required>
-              <option value="">Select Status</option>
-              {% for value, label in status_choices %}
-              <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Save Task</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-{% endblock %} {% block script %}
+
+{% include "tasks/_create_task_modal.html" %}
+{% endblock %}
+
+{% block script %}
 <script src="{% static 'js/tasks.js' %}"></script>
-{% endblock script %}
+{% endblock %}

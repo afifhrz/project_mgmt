@@ -16,8 +16,15 @@
       href="https://unpkg.com/tabulator-tables@4.1.4/dist/css/tabulator.min.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.1/r-3.0.4/datatables.min.css"
+      rel="stylesheet"
+      integrity="sha384-xqq98gA324C4ueen4nawqUMbuOtwI11GZOGylDfvOpOEhG3D8bH3Zab1cG7Z2k9F"
+      crossorigin="anonymous"
+    />
   </head>
   <body class="bg-light">
+    <body data-role="{{ request.user.group.name }}">
     <div
       aria-live="polite"
       aria-atomic="true"
@@ -107,6 +114,11 @@
     <script
       src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"
       type="text/javascript"
+    ></script>
+    <script
+      src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.1/r-3.0.4/datatables.min.js"
+      integrity="sha384-qMR6Kf6revvSIx2rr0aSukNJzuRD7m1fK3x2QTc1wQciaioUGVAN2Wy8VkLjLk/Q"
+      crossorigin="anonymous"
     ></script>
     <script src="{% static 'js/base.js' %}"></script>
     {% block script %} {% endblock %}
