@@ -1,34 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const createTaskForm = document.getElementById("createTaskForm");
-    const createTaskModal = new bootstrap.Modal(document.getElementById("createTaskModal"));
-    const createTaskUrl = createTaskForm.dataset.url;
-  
-    createTaskForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-  
-      $.ajax({
-        type: "POST",
-        url: createTaskUrl,
-        data: $(createTaskForm).serialize(),
-        success: function () {
-          createTaskModal.hide();
-          location.reload();
-        },
-        error: function () {
-          alert("Failed to create task. Please try again.");
-        }
-      });
+  const createTaskForm = document.getElementById("createTaskForm");
+  const createTaskModal = new bootstrap.Modal(
+    document.getElementById("createTaskModal")
+  );
+  const createTaskUrl = createTaskForm.dataset.url;
+
+  createTaskForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    $.ajax({
+      type: "POST",
+      url: createTaskUrl,
+      data: $(createTaskForm).serialize(),
+      success: function () {
+        createTaskModal.hide();
+        location.reload();
+      },
+      error: function () {
+        alert("Failed to create task. Please try again.");
+      },
     });
   });
-  
-  // show unattained_reason textarea only if status is not OPEN
+});
+
+// show unattained_reason textarea only if status is not OPEN
 document.addEventListener("DOMContentLoaded", () => {
   const statusSel = document.getElementById("status");
   const wrapper = document.getElementById("unattainedWrapper");
   if (!statusSel) return;
 
   function toggleReason() {
-    wrapper.style.display = statusSel.value && statusSel.value !== "OPEN" ? "block" : "none";
+    wrapper.style.display =
+      statusSel.value && statusSel.value !== "OPEN" ? "block" : "none";
   }
   statusSel.addEventListener("change", toggleReason);
   toggleReason(); // initial
@@ -37,16 +40,16 @@ document.addEventListener("DOMContentLoaded", () => {
 $(function () {
   $("#tasksTable").DataTable({
     fixedHeader: true,
-    scrollX: true,            // forces horizontal scroll
+    scrollX: true, // forces horizontal scroll
     pageLength: 25,
     lengthMenu: [10, 25, 50, 100],
     columnDefs: [
-      { targets: [1, 22, 23], className: "text-wrap" } // wrap long text cols
+      { targets: [1, 22, 23], className: "text-wrap" }, // wrap long text cols
     ],
     language: {
       search: "_INPUT_",
-      searchPlaceholder: "Search tasks..."
-    }
+      searchPlaceholder: "Search tasks...",
+    },
   });
 });
 
@@ -55,8 +58,18 @@ $(function () {
 
   // 1. open modal
   $("#tasksTable").on("click", ".edit-btn", function () {
-    const raw = document.getElementById($(this).data("json")).textContent;
-    const task = JSON.parse(raw);
+    const rawEscaped = $(this).attr("data-json");
+
+    // Replace Unicode escape sequences (\u0022 → ")
+    const decodedJson = rawEscaped
+      .replace(/\\u0022/g, '"')
+      .replace(/\\u000A/g, "") // remove newline chars
+      .replace(/\\u002D/g, "-") // optional: handle dash
+      .replace(/\\u[0-9A-F]{4}/gi, (match) => {
+        return String.fromCharCode(parseInt(match.replace("\\u", ""), 16));
+      });
+
+    const task = JSON.parse(decodedJson);
     $("#editTaskId").val(task.id);
 
     // Populate common fields
@@ -88,7 +101,7 @@ $(function () {
           alert(resp.message);
         }
       },
-      error: () => alert("Server error")
+      error: () => alert("Server error"),
     });
   });
 });

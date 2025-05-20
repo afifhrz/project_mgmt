@@ -63,7 +63,7 @@
           <button
             class="btn btn-sm btn-outline-primary edit-btn"
             data-id="{{ task.id }}"
-            data-json='{{ task|json_script:"task{{task.id}}" }}'
+            data-json="{{ task.json|escapejs }}"
           >
             Edit
           </button>
