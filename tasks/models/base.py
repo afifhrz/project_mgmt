@@ -26,6 +26,7 @@ class BaseTasks(BaseModel):
     ptw_based_on_risk_level = models.CharField(max_length=10, choices=PtwBasedOnRiskLevel.choices, default=PtwBasedOnRiskLevel.A)
     budgetary_planning = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     budgetary_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    json_data = None
     
     class Meta:
         abstract = True

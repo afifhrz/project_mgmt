@@ -23,8 +23,7 @@
       crossorigin="anonymous"
     />
   </head>
-  <body class="bg-light">
-    <body data-role="{{ request.user.group.name }}">
+  <body class="bg-light" data-role="{{ request.user.groups.all.0.name }}">
     <div
       aria-live="polite"
       aria-atomic="true"

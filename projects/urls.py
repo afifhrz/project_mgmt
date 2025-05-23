@@ -6,6 +6,7 @@ app_name = 'projects'
 urlpatterns = [
     # home page
     path('', home, name='projects_list'),
+    path('', home, name='home'),
     # project urls
     path('projects', projects_create, name='projects_create'),
     path('projects-detail/<uuid:pk>', projects_detail, name='projects_detail'),

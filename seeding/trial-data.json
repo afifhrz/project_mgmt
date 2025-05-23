@@ -1,0 +1,348 @@
+[
+    {
+        "model": "admin.logentry",
+        "pk": 1,
+        "fields": {
+            "action_time": "2025-05-17T09:09:10.915Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "4",
+            "object_repr": "pic2",
+            "action_flag": 1,
+            "change_message": "[{\"added\": {}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 2,
+        "fields": {
+            "action_time": "2025-05-17T09:09:32.999Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "4",
+            "object_repr": "pic2",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\", \"Groups\", \"Last login\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 3,
+        "fields": {
+            "action_time": "2025-05-21T10:45:57.996Z",
+            "user": 1,
+            "content_type": 3,
+            "object_id": "3",
+            "object_repr": "Project Planner",
+            "action_flag": 1,
+            "change_message": "[{\"added\": {}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 4,
+        "fields": {
+            "action_time": "2025-05-21T10:46:16.589Z",
+            "user": 1,
+            "content_type": 3,
+            "object_id": "2",
+            "object_repr": "Person In Charge",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 5,
+        "fields": {
+            "action_time": "2025-05-21T10:46:43.326Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "5",
+            "object_repr": "pp1",
+            "action_flag": 1,
+            "change_message": "[{\"added\": {}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 6,
+        "fields": {
+            "action_time": "2025-05-21T10:47:05.897Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "5",
+            "object_repr": "pp1",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\", \"Groups\", \"Last login\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 7,
+        "fields": {
+            "action_time": "2025-05-21T10:47:27.123Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "2",
+            "object_repr": "gm_user",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 8,
+        "fields": {
+            "action_time": "2025-05-21T10:48:00.776Z",
+            "user": 1,
+            "content_type": 4,
+            "object_id": "3",
+            "object_repr": "pic_user",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\"]}}]"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 1,
+        "fields": {
+            "app_label": "admin",
+            "model": "logentry"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 2,
+        "fields": {
+            "app_label": "auth",
+            "model": "permission"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 3,
+        "fields": {
+            "app_label": "auth",
+            "model": "group"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 4,
+        "fields": {
+            "app_label": "auth",
+            "model": "user"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 5,
+        "fields": {
+            "app_label": "contenttypes",
+            "model": "contenttype"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 6,
+        "fields": {
+            "app_label": "sessions",
+            "model": "session"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 7,
+        "fields": {
+            "app_label": "tasks",
+            "model": "epic"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 8,
+        "fields": {
+            "app_label": "tasks",
+            "model": "task"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 9,
+        "fields": {
+            "app_label": "tasks",
+            "model": "subtask"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 10,
+        "fields": {
+            "app_label": "tasks",
+            "model": "taskassignment"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 11,
+        "fields": {
+            "app_label": "tasks",
+            "model": "subtaskassignment"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 12,
+        "fields": {
+            "app_label": "tasks",
+            "model": "epicassignment"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 13,
+        "fields": {
+            "app_label": "projects",
+            "model": "project"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 14,
+        "fields": {
+            "app_label": "projects",
+            "model": "sprint"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 15,
+        "fields": {
+            "app_label": "projects",
+            "model": "projectassignment"
+        }
+    },
+    {
+        "model": "tasks.task",
+        "pk": "aa42bc26-7b68-4d0f-86a7-41252dba7889",
+        "fields": {
+            "created_at": "2025-05-17T09:20:26.187Z",
+            "updated_at": "2025-05-17T09:20:26.187Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "rmu": "RMU",
+            "taskname": "123",
+            "section": "FSE",
+            "plan_start_date": "2025-05-17",
+            "plan_end_date": "2025-05-23",
+            "break_in": false,
+            "need_contingency": false,
+            "location": "asd",
+            "planned_work_duration": 12,
+            "planned_manpower": 12,
+            "remarks": "123",
+            "status": "PROGRESS",
+            "unattained_reason": null,
+            "risk_level": "L",
+            "risk_likelihood": 1,
+            "risk_impact": 1,
+            "priority_urgency": 1,
+            "priority_impact": 1,
+            "work_pack_readiness": true,
+            "ptw_based_on_risk_level": "A",
+            "budgetary_planning": "1.00",
+            "budgetary_actual": "1.00",
+            "sprint": "c2ac57ed-47c7-4827-aa1e-681c94f71492",
+            "epic": null
+        }
+    },
+    {
+        "model": "tasks.taskassignment",
+        "pk": "798687b3-0b4e-40f2-baaa-ae59f42d4aea",
+        "fields": {
+            "created_at": "2025-05-17T09:20:26.187Z",
+            "updated_at": "2025-05-17T09:20:26.187Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "task": "aa42bc26-7b68-4d0f-86a7-41252dba7889",
+            "user": 4
+        }
+    },
+    {
+        "model": "tasks.taskassignment",
+        "pk": "af50f075-dfa5-4ffb-bb13-95a46d2d1263",
+        "fields": {
+            "created_at": "2025-05-17T09:20:26.187Z",
+            "updated_at": "2025-05-17T09:20:26.187Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "task": "aa42bc26-7b68-4d0f-86a7-41252dba7889",
+            "user": 3
+        }
+    },
+    {
+        "model": "projects.project",
+        "pk": "989abb04-6bf2-4f17-b59f-6ca7f8752425",
+        "fields": {
+            "created_at": "2025-05-16T14:13:13.265Z",
+            "updated_at": "2025-05-16T14:13:13.265Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": 2,
+            "updated_by": null,
+            "name": "Rimau",
+            "description": "Rimau Mining Development"
+        }
+    },
+    {
+        "model": "projects.sprint",
+        "pk": "c2ac57ed-47c7-4827-aa1e-681c94f71492",
+        "fields": {
+            "created_at": "2025-05-16T14:15:44.379Z",
+            "updated_at": "2025-05-16T14:15:44.379Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": 2,
+            "updated_by": null,
+            "name": "W1",
+            "project": "989abb04-6bf2-4f17-b59f-6ca7f8752425",
+            "start_date": "2025-05-19",
+            "end_date": "2025-05-23"
+        }
+    },
+    {
+        "model": "projects.projectassignment",
+        "pk": "af2ba655-c611-4bae-a40e-1a428bf25dc9",
+        "fields": {
+            "created_at": "2025-05-17T09:14:20.917Z",
+            "updated_at": "2025-05-17T09:14:20.917Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": 2,
+            "updated_by": null,
+            "project": "989abb04-6bf2-4f17-b59f-6ca7f8752425",
+            "user": 4
+        }
+    },
+    {
+        "model": "projects.projectassignment",
+        "pk": "f496f4bf-2962-46cb-ab1b-fedd6c036e52",
+        "fields": {
+            "created_at": "2025-05-17T09:13:49.183Z",
+            "updated_at": "2025-05-17T09:13:49.183Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": 2,
+            "updated_by": null,
+            "project": "989abb04-6bf2-4f17-b59f-6ca7f8752425",
+            "user": 3
+        }
+    }
+]

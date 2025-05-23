@@ -1,5 +1,3 @@
-from decimal import Decimal
-from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
@@ -8,10 +6,9 @@ from common.utils.json_response import ApiResponse
 
 from django.contrib.auth.models import User
 
-from datetime import datetime as dt
 from tasks.models.enums import RMU, PtwBasedOnRiskLevel, RiskLevel, Section, Status
 from .models.models import Sprint, Epic, Task, TaskAssignment
-
+from common.utils.model_utils import add_json_to_model
 import json
 
 # --- Epic Views ---
@@ -47,17 +44,12 @@ def epic_delete(request, pk):
 def tasks_list(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
     tasks = Task.objects.filter(sprint=sprint)
-    task_dicts = []
-    for task in tasks:
-        task_dict = model_to_dict(task)
-        task_dict['id'] = task.id  # Manually add the 'id' field
-        task_dict['json'] = json.dumps(model_to_dict(task), indent=4, sort_keys=True, default=str)  # Convert to JSON string
-        task_dicts.append(task_dict)
+    tasks = add_json_to_model(tasks)
     # Filter users assigned to this sprint's project
     pics = User.objects.filter(assigned_projects__project=sprint.project).distinct()
     return render(request, 'tasks/tasks_list.html', {
         'sprint': sprint,
-        'tasks': task_dicts,
+        'tasks': tasks,
         'pics': pics,
         "rmu_choices": RMU.choices,
         "section_choices": Section.choices,

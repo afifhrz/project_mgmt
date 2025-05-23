@@ -30,11 +30,11 @@ class Section(models.TextChoices):
     MAI = 'MAI', 'MAI'
 
 class RiskLevel(models.TextChoices):
-    LOW = 'L', 'L'
-    MI = 'MI', 'M-I'
-    MII = 'MII', 'M-II'
-    HIGH = 'H', 'H'
-    CRITICAL = 'C', 'C'
+    LOW = 'L', 'Low'
+    MI = 'MI', 'Medium-I'
+    MII = 'MII', 'Medium-II'
+    HIGH = 'H', 'High'
+    CRITICAL = 'C', 'Critical'
     
 class PtwBasedOnRiskLevel(models.TextChoices):
     A = 'A', 'A'

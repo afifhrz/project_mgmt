@@ -1,76 +1,80 @@
-<div class="table-responsive">
-  <table id="tasksTable" class="table table-striped table-bordered w-100">
-    <thead class="table-light">
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>RMU</th>
-        <th>Section</th>
-        <th>Plan Start</th>
-        <th>Plan End</th>
-        <th>Break‑in</th>
-        <th>Need Cont.</th>
-        <th>Location</th>
-        <th>Work Dur.</th>
-        <th>Manpower</th>
-        <th>Status</th>
-        <th>Risk Lvl</th>
-        <th>Risk Like</th>
-        <th>Risk Impact</th>
-        <th>Prio Urg</th>
-        <th>Prio Imp</th>
-        <th>Work‑pack</th>
-        <th>PTW RL</th>
-        <th>Budget Plan</th>
-        <th>Budget Act</th>
-        <th>PIC(s)</th>
-        <th>Remarks</th>
-        <th>Unatt. Reason</th>
-        <th style="width: 80px">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for task in tasks %}
-      <tr>
-        <td>{{ task.taskname }}</td>
-        <td>{{ task.description|truncatechars:60 }}</td>
-        <td>{{ task.get_rmu_display }}</td>
-        <td>{{ task.get_section_display }}</td>
-        <td>{{ task.plan_start_date }}</td>
-        <td>{{ task.plan_end_date }}</td>
-        <td>{{ task.break_in|yesno:"✓,–" }}</td>
-        <td>{{ task.need_contingency|yesno:"✓,–" }}</td>
-        <td>{{ task.location }}</td>
-        <td>{{ task.planned_work_duration }}</td>
-        <td>{{ task.planned_manpower }}</td>
-        <td>{{ task.get_status_display }}</td>
-        <td>{{ task.get_risk_level_display }}</td>
-        <td>{{ task.risk_likelihood }}</td>
-        <td>{{ task.risk_impact }}</td>
-        <td>{{ task.priority_urgency }}</td>
-        <td>{{ task.priority_impact }}</td>
-        <td>{{ task.work_pack_readiness|yesno:"✓,–" }}</td>
-        <td>{{ task.get_ptw_based_on_risk_level_display }}</td>
-        <td>{{ task.budgetary_planning }}</td>
-        <td>{{ task.budgetary_actual }}</td>
-        <td>
-          {% for a in task.taskassignment_set.all %} {{ a.user.get_full_name
-          }}{% if not forloop.last %}, {% endif %} {% endfor %}
-        </td>
-        <td>{{ task.remarks|default:"–" }}</td>
-        <td>{{ task.unattained_reason|default:"–" }}</td>
-        <td>
-          <button
-            class="btn btn-sm btn-outline-primary edit-btn"
-            data-id="{{ task.id }}"
-            data-json="{{ task.json|escapejs }}"
-          >
-            Edit
-          </button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% load static %}
+<div class="d-flex flex-column gap-3">
+  <div class="table-responsive">
+    <table id="tasksTable" class="table table-striped table-bordered w-100 fs-7">
+      <thead class="table-light">
+        <tr>
+          <th class="text-start align-middle">Activity/Task Name</th>
+          {% comment %} <th>RMU</th>
+          <th>Section</th>
+          <th>Plan Start</th>
+          <th>Plan End</th>
+          <th>Break‑in</th>
+          <th>Need Cont.</th>
+          <th>Location</th>
+          <th>Work Dur.</th>
+          <th>Manpower</th> {% endcomment %}
+          <th class="text-start align-middle">Status</th>
+          <th class="text-center align-middle">Risk<br>Level</th>
+          {% comment %} <th>Risk Like</th>
+          <th>Risk Impact</th> {% endcomment %}
+          <th class="text-center align-middle">Prior<br>Urgency</th>
+          <th class="text-center align-middle">Prior<br>Impact</th>
+          {% comment %} <th>Work‑pack</th>
+          <th>PTW RL</th>
+          <th>Budget Plan</th>
+          <th>Budget Act</th>
+          <th>PIC(s)</th>
+          <th>Remarks</th>
+          <th>Unatt. Reason</th> {% endcomment %}
+          <th class="text-start align-middle">Created</th>
+          <th class="text-start align-middle">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td>{{ task.taskname }}</td>
+          {% comment %} <td>{{ task.get_rmu_display }}</td>
+          <td>{{ task.get_section_display }}</td>
+          <td>{{ task.plan_start_date }}</td>
+          <td>{{ task.plan_end_date }}</td>
+          <td>{{ task.break_in|yesno:"✓,–" }}</td>
+          <td>{{ task.need_contingency|yesno:"✓,–" }}</td>
+          <td>{{ task.location }}</td>
+          <td>{{ task.planned_work_duration }}</td>
+          <td>{{ task.planned_manpower }}</td> {% endcomment %}
+          <td>{{ task.get_status_display }}</td>
+          <td>{{ task.get_risk_level_display }}</td>
+          {% comment %} <td>{{ task.risk_likelihood }}</td>
+          <td>{{ task.risk_impact }}</td> {% endcomment %}
+          <td>{{ task.priority_urgency }}</td>
+          <td>{{ task.priority_impact }}</td>
+          {% comment %} <td>{{ task.work_pack_readiness|yesno:"✓,–" }}</td>
+          <td>{{ task.get_ptw_based_on_risk_level_display }}</td>
+          <td>{{ task.budgetary_planning }}</td>
+          <td>{{ task.budgetary_actual }}</td>
+          <td>
+            {% for a in task.taskassignment_set.all %} {{ a.user.get_full_name
+            }}{% if not forloop.last %}, {% endif %} {% endfor %}
+          </td>
+          <td>{{ task.remarks|default:"–" }}</td>
+          <td>{{ task.unattained_reason|default:"–" }}</td> {% endcomment %}
+          <td>{{ task.created_at|date:"Y-m-d H:i" }}</td>
+          <td>
+            <button
+              class="btn btn-sm btn-outline-primary edit-btn"
+              data-id="{{ task.id }}"
+              data-json="{{ task.json_data|escapejs }}"
+            >
+              Edit
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
 {% include "tasks/_update_task_modal.html" %}

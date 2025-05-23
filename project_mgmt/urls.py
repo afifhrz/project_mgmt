@@ -16,14 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include # type: ignore
-from projects import views as projects
+from django.urls import path # type: ignore
+from decorator_include import decorator_include
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', projects.home, name='home'),
-    path('tasks/', include('tasks.urls')),    
-    path('', include('projects.urls', namespace='projects')),
+    path('tasks/', decorator_include([login_required],'tasks.urls')),    
+    path('', decorator_include([login_required],'projects.urls', namespace='projects')),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
