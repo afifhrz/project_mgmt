@@ -11,7 +11,7 @@ run this command
 ```
 cd seeding
 python ..\manage.py dumpdata auth -o auth.json
-python ..\manage.py dumpdata --exclude=auth -o trial-data.json
+python ..\manage.py dumpdata --exclude=auth --exclude=sessions -o trial-data.json
 ```
 
 # Remove All Data

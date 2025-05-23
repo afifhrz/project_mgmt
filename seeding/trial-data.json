@@ -104,6 +104,45 @@
         }
     },
     {
+        "model": "admin.logentry",
+        "pk": 9,
+        "fields": {
+            "action_time": "2025-05-23T13:48:55.254Z",
+            "user": 1,
+            "content_type": 3,
+            "object_id": "1",
+            "object_repr": "General Manager",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 10,
+        "fields": {
+            "action_time": "2025-05-23T13:49:46.633Z",
+            "user": 1,
+            "content_type": 3,
+            "object_id": "3",
+            "object_repr": "Project Planner",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+        }
+    },
+    {
+        "model": "admin.logentry",
+        "pk": 11,
+        "fields": {
+            "action_time": "2025-05-23T13:50:37.435Z",
+            "user": 1,
+            "content_type": 3,
+            "object_id": "2",
+            "object_repr": "Person In Charge",
+            "action_flag": 2,
+            "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+        }
+    },
+    {
         "model": "contenttypes.contenttype",
         "pk": 1,
         "fields": {
@@ -225,6 +264,42 @@
     },
     {
         "model": "tasks.task",
+        "pk": "6f1b3e06-5171-451d-9f3b-99d8690737a9",
+        "fields": {
+            "created_at": "2025-05-23T15:56:17.648Z",
+            "updated_at": "2025-05-23T15:56:17.648Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "rmu": "RMU",
+            "taskname": "Rimau moving application planning",
+            "section": "FSE",
+            "plan_start_date": "2025-05-23",
+            "plan_end_date": "2025-05-30",
+            "break_in": false,
+            "need_contingency": false,
+            "location": "123",
+            "planned_work_duration": 123,
+            "planned_manpower": 123,
+            "remarks": "123",
+            "status": "OPEN",
+            "unattained_reason": null,
+            "risk_level": "L",
+            "risk_likelihood": 1,
+            "risk_impact": 2,
+            "priority_urgency": 1,
+            "priority_impact": 3,
+            "work_pack_readiness": true,
+            "ptw_based_on_risk_level": "A",
+            "budgetary_planning": "123.00",
+            "budgetary_actual": "123.00",
+            "sprint": "c2ac57ed-47c7-4827-aa1e-681c94f71492",
+            "epic": null
+        }
+    },
+    {
+        "model": "tasks.task",
         "pk": "aa42bc26-7b68-4d0f-86a7-41252dba7889",
         "fields": {
             "created_at": "2025-05-17T09:20:26.187Z",
@@ -257,6 +332,34 @@
             "budgetary_actual": "1.00",
             "sprint": "c2ac57ed-47c7-4827-aa1e-681c94f71492",
             "epic": null
+        }
+    },
+    {
+        "model": "tasks.taskassignment",
+        "pk": "6ed0addd-02da-462d-b4fb-82c0c8382b8f",
+        "fields": {
+            "created_at": "2025-05-23T15:56:17.666Z",
+            "updated_at": "2025-05-23T15:56:17.666Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "task": "6f1b3e06-5171-451d-9f3b-99d8690737a9",
+            "user": 3
+        }
+    },
+    {
+        "model": "tasks.taskassignment",
+        "pk": "7679fa8d-c232-4a80-af58-9ea0ed6bb6ff",
+        "fields": {
+            "created_at": "2025-05-23T15:56:17.666Z",
+            "updated_at": "2025-05-23T15:56:17.666Z",
+            "is_active": true,
+            "is_deleted": false,
+            "created_by": null,
+            "updated_by": null,
+            "task": "6f1b3e06-5171-451d-9f3b-99d8690737a9",
+            "user": 4
         }
     },
     {
