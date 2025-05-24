@@ -20,3 +20,18 @@ function showToast(message, type = "info") {
   document.body.appendChild(toast);
   new bootstrap.Toast(toast, { delay: 3000 }).show();
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("td[data-created]").forEach(function (td) {
+    const iso = td.getAttribute("data-created");
+    const date = new Date(iso);
+    const localString = date.toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }); // or customize format
+    td.textContent = localString;
+  });
+});

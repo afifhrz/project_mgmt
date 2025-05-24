@@ -20,8 +20,8 @@ $(function () {
     lengthMenu: [10, 25, 50, 100],
     columnDefs: [
       { targets: [0, 5], className: "text-wrap" },
-      { targets: [0, 1, 2, 3, 4, 5], className: "text-start" },
-      { targets: 6, className: "text-center" },
+      { targets: [0, 1, 2, 3, 4, 5], className: "text-start align-middle" },
+      { targets: 6, className: "text-center align-middle" },
     ],
     columns: [
       { width: "61%" }, // task name

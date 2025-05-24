@@ -1,8 +1,8 @@
 {% load static %}
 <div class="d-flex flex-column gap-3">
   <div class="table-responsive">
-    <table id="tasksTable" class="table table-striped table-bordered w-100 fs-7">
-      <thead class="table-light">
+    <table id="tasksTable" class="table table-bordered w-100 fs-8 table-hover">
+      <thead class="table-secondary">
         <tr>
           <th class="text-start align-middle">Activity/Task Name</th>
           {% comment %} <th>RMU</th>
@@ -60,7 +60,7 @@
           </td>
           <td>{{ task.remarks|default:"–" }}</td>
           <td>{{ task.unattained_reason|default:"–" }}</td> {% endcomment %}
-          <td>{{ task.created_at|date:"Y-m-d H:i" }}</td>
+          <td data-created="{{ task.created_at|date:"c" }}"></td>
           <td>
             <button
               class="btn btn-sm btn-outline-primary edit-btn"

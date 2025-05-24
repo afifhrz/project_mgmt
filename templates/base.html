@@ -11,7 +11,6 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
-    <link href="{% static 'css/app.css' %}" rel="stylesheet" />
     <link
       href="https://unpkg.com/tabulator-tables@4.1.4/dist/css/tabulator.min.css"
       rel="stylesheet"
@@ -22,6 +21,7 @@
       integrity="sha384-xqq98gA324C4ueen4nawqUMbuOtwI11GZOGylDfvOpOEhG3D8bH3Zab1cG7Z2k9F"
       crossorigin="anonymous"
     />
+    <link href="{% static 'css/app.css' %}" rel="stylesheet" />
   </head>
   <body class="bg-light" data-role="{{ request.user.groups.all.0.name }}">
     <div
