@@ -9,6 +9,7 @@
 # Dump Data
 run this command
 ```
+pip freeze > requirements.txt
 cd seeding
 python ..\manage.py dumpdata auth -o auth.json
 python ..\manage.py dumpdata --exclude=auth --exclude=sessions -o trial-data.json
