@@ -2,7 +2,7 @@ let table;
 
 function loadAssignments(projectId) {
   $.ajax({
-    url: `/api/assignments/${projectId}/`,
+    url: `/projects/api/assignments/${projectId}/`,
     method: "GET",
     success: function (data) {
       if (!table) {
@@ -24,6 +24,9 @@ function loadAssignments(projectId) {
             },
           ],
         });
+      }
+      else {
+        table.setData(data);
       }
 
       if (data.length === 0) {
@@ -53,10 +56,11 @@ function unassignUser(projectId, userId) {
       csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
     },
     success: function () {
+      showToast("User unassigned successfully.", "success");
       loadAssignments(projectId);
     },
     error: function () {
-      alert("Failed to unassign user.");
+      showToast("Failed to unassign user.", "danger");
     },
   });
 }
@@ -84,10 +88,11 @@ $("#assignBtn").on("click", function () {
       csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
     },
     success: function () {
+      showToast("User assigned successfully.", "success");
       loadAssignments(projectId);
     },
     error: function () {
-      alert("Assignment failed.");
+      showToast("Failed to assign user.", "danger");
     },
   });
 });

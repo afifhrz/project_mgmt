@@ -3,6 +3,9 @@
     <div class="container flex-grow-1 mb-5 me-lg-5" id="task-container">
         <h2>{{ task.issue_id }}</h2>
         <div class="mb-2">
+            <a href="{% url 'tasks:tasks_list' task.sprint.id %}" class="btn btn-sm btn-outline-info">
+                🔙 Back to Task List
+            </a>
             <button id="edit-btn" class="btn btn-sm btn-outline-primary">
                 ✏️ Edit
             </button>

@@ -151,7 +151,7 @@ def sprints_update(request, pk):
         sprint.name = name
         sprint.start_date = start_date
         sprint.end_date = end_date
-        sprint.save()
+        sprint.save(user=request.user)
         messages.success(request, "Sprint updated successfully!")
         return HttpResponseRedirect(reverse('projects:sprints_list', kwargs={'project_id': sprint.project.id}))
 

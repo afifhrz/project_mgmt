@@ -119,6 +119,8 @@ def tasks_create(request):
         # misc
         remarks=data.get("remarks", ""),
         unattained_reason=data.get("unattained_reason") or None,
+        created_by=request.user,
+        updated_by=request.user,
     )
 
     # basic validation example
@@ -131,28 +133,6 @@ def tasks_create(request):
         user = get_object_or_404(User, pk=pic_id)
         TaskAssignment.objects.create(task=task, user=user)
     return ApiResponse.ok(message="Task created successfully!", status=201)
-
-
-@require_POST
-def tasks_update(request, task_id):
-    task = get_object_or_404(Task, pk=task_id)
-    user = request.user
-
-    is_planner = user.groups.filter(name="project_planner").exists()
-    is_pic = task.taskassignment_set.filter(user=user).exists()
-
-    if not (is_planner or is_pic):
-        return ApiResponse.error(message="Forbidden", status=403)
-
-    allowed = [
-        "status", "unattained_reason"] if not is_planner else request.POST.keys()
-
-    for field in allowed:
-        if field in request.POST:
-            setattr(task, field, request.POST[field] or None)
-
-    task.save()
-    return ApiResponse.ok(message="Updated")
 
 
 def tasks_delete(pk):

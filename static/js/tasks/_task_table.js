@@ -18,6 +18,7 @@ $(function () {
     scrollX: true, // forces horizontal scroll
     pageLength: 25,
     lengthMenu: [10, 25, 50, 100],
+    order: [[5, "asc"]], // ⬅️ Sort by column index 5 ascending
     columnDefs: [
       { targets: [0, 5], className: "text-wrap" },
       { targets: [0, 1, 2, 3, 4, 5], className: "text-start align-middle" },

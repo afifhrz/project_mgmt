@@ -13,8 +13,11 @@ document.addEventListener("DOMContentLoaded", function () {
       url: createTaskUrl,
       data: $(createTaskForm).serialize(),
       success: function () {
+        showToast("Task created successfully.", "success");
         createTaskModal.hide();
-        location.reload();
+        setTimeout(function () {
+          window.location.reload();
+        }, 3000);
       },
       error: function () {
         alert("Failed to create task. Please try again.");

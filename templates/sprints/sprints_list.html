@@ -2,14 +2,19 @@
 <div class="container py-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="h4 fw-semibold mb-4">Sprints for {{ project.name }}</h2>
-    <button
-      data-project-id="{{ project.id }}"
-      data-url="{% url 'projects:sprints_create' %}"
-      class="btn btn-primary"
-      id="openSprintModal"
-    >
-      + Create Sprint
-    </button>
+    <div>
+      <a href="{% url 'projects_list' %}" class="btn btn-outline-info">
+        🔙 Back to Project List
+      </a>
+      <button
+        data-project-id="{{ project.id }}"
+        data-url="{% url 'projects:sprints_create' %}"
+        class="btn btn-primary"
+        id="openSprintModal"
+      >
+        + Create Sprint
+      </button>
+    </div>
   </div>
   <ul class="list-group">
     {% for sprint in sprints %}
