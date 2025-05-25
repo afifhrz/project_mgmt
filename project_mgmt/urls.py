@@ -20,10 +20,14 @@ from django.urls import path # type: ignore
 from decorator_include import decorator_include
 from django.contrib.auth.decorators import login_required
 
+from projects.views import home
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home, name='projects_list'),
+    path('', home, name='home'),
     path('tasks/', decorator_include([login_required],'tasks.urls')),    
-    path('', decorator_include([login_required],'projects.urls', namespace='projects')),
+    path('projects/', decorator_include([login_required],'projects.urls', namespace='projects')),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]

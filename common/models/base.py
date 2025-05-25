@@ -14,7 +14,14 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
-
+    def save(self, *args, user=None, **kwargs):
+        if user:
+            if not self.pk:
+                self.created_by = user
+            else:
+                self.updated_by = user
+        super().save(*args, **kwargs)
+        
     def soft_delete(self):
         self.is_deleted = True
         self.save()

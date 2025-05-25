@@ -6,6 +6,21 @@ from common.models.base import BaseModel
 # Create your models here.
 class Project(BaseProjects):
     description = models.TextField(blank=True)
+    prefix = models.CharField(max_length=10, unique=True)
+    def save(self, *args, **kwargs):
+        if not self.prefix:
+            base_prefix = ''.join([w[0].upper() for w in self.name.split() if w])
+            if len(base_prefix) == 1:
+                base_prefix += 'P'
+            elif len(base_prefix) > 10:
+                base_prefix = base_prefix[:5]
+            prefix = base_prefix
+            counter = 1
+            while Project.objects.filter(prefix=prefix).exclude(pk=self.pk).exists():
+                prefix = f"{base_prefix}{counter}"
+                counter += 1
+            self.prefix = prefix
+        super().save(*args, **kwargs)
 
 class Sprint(BaseProjects):
     project = models.ForeignKey(Project, on_delete=models.DO_NOTHING)

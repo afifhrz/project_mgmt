@@ -34,3 +34,11 @@ class SubTaskAssignment(BaseModel):
 
     class Meta:
         unique_together = ('subtask', 'user')
+
+class ActivityHistory(BaseModel):
+    task = models.ForeignKey(Task, on_delete=models.DO_NOTHING, blank=True, null=True)
+    epic = models.ForeignKey(Epic, on_delete=models.DO_NOTHING, blank=True, null=True)
+    subtask = models.ForeignKey(SubTask, on_delete=models.DO_NOTHING, blank=True, null=True)
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    

@@ -1,21 +1,27 @@
+from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from common.helper.parser import _to_bool, parse_date, parse_decimal, parse_int
 from common.utils.json_response import ApiResponse
+from django.utils.text import slugify
 
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 from tasks.models.enums import RMU, PtwBasedOnRiskLevel, RiskLevel, Section, Status
-from .models.models import Sprint, Epic, Task, TaskAssignment
-from common.utils.model_utils import add_json_to_model
-import json
+from .models.models import ActivityHistory, Sprint, Epic, Task, TaskAssignment
+from common.utils.model_utils import add_json_to_model, prettify_field
 
 # --- Epic Views ---
+
+
 def epic_list(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
     epics = Epic.objects.filter(sprint=sprint)
     return render(request, 'epic/list.html', {'sprint': sprint, 'epics': epics})
+
 
 def epic_create(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
@@ -27,6 +33,7 @@ def epic_create(request, sprint_id):
         return redirect('epic_list', sprint_id=sprint.id)
     return render(request, 'epic/form.html', {'form': form})
 
+
 def epic_update(request, pk):
     epic = get_object_or_404(Epic, pk=pk)
     form = EpicForm(request.POST or None, instance=epic)
@@ -35,18 +42,21 @@ def epic_update(request, pk):
         return redirect('epic_list', sprint_id=epic.sprint.id)
     return render(request, 'epic/form.html', {'form': form})
 
+
 def epic_delete(request, pk):
     epic = get_object_or_404(Epic, pk=pk)
     sprint_id = epic.sprint.id
     epic.delete()
     return redirect('epic_list', sprint_id=sprint_id)
 
+
 def tasks_list(request, sprint_id):
     sprint = get_object_or_404(Sprint, id=sprint_id)
     tasks = Task.objects.filter(sprint=sprint)
     tasks = add_json_to_model(tasks)
     # Filter users assigned to this sprint's project
-    pics = User.objects.filter(assigned_projects__project=sprint.project).distinct()
+    pics = User.objects.filter(
+        assigned_projects__project=sprint.project).distinct()
     return render(request, 'tasks/tasks_list.html', {
         'sprint': sprint,
         'tasks': tasks,
@@ -58,6 +68,7 @@ def tasks_list(request, sprint_id):
         "status_choices": Status.choices,
     })
 
+
 @require_POST
 def tasks_create(request):
     data = request.POST
@@ -65,12 +76,12 @@ def tasks_create(request):
     # ── 1. Required ids ───────────────────────────────────────────────
     sprint_id = data.get("sprint_id")
     pic_ids = request.POST.getlist('pic_ids')
-    
+
     # ── 2. Basic required text fields ────────────────────────────────
     taskname = data.get("taskname")
-    status   = data.get("status")
+    status = data.get("status")
     sprint = get_object_or_404(Sprint, pk=sprint_id) if sprint_id else None
-    
+
     if not all([sprint, taskname, status, pic_ids]):
         return JsonResponse(
             {"error": "Missing required fields."},
@@ -81,45 +92,46 @@ def tasks_create(request):
     task_kwargs = dict(
         sprint=sprint,
         # basic
-        rmu              = data.get("rmu"),
-        taskname         = taskname,
-        section          = data.get("section"),
-        status           = status,
+        rmu=data.get("rmu"),
+        taskname=taskname,
+        section=data.get("section"),
+        status=status,
         # planning
-        plan_start_date  = parse_date("plan_start_date", data),
-        plan_end_date    = parse_date("plan_end_date", data),
-        planned_work_duration = parse_int("planned_work_duration", data),
-        planned_manpower      = parse_int("planned_manpower", data),
-        location         = data.get("location", ""),
+        plan_start_date=parse_date("plan_start_date", data),
+        plan_end_date=parse_date("plan_end_date", data),
+        planned_work_duration=parse_int("planned_work_duration", data),
+        planned_manpower=parse_int("planned_manpower", data),
+        location=data.get("location", ""),
         # flags
-        break_in         = _to_bool(data.get("break_in")),
-        need_contingency = _to_bool(data.get("need_contingency")),
-        work_pack_readiness = _to_bool(data.get("work_pack_readiness", "on")),
+        break_in=_to_bool(data.get("break_in")),
+        need_contingency=_to_bool(data.get("need_contingency")),
+        work_pack_readiness=_to_bool(data.get("work_pack_readiness", "on")),
         # risk
-        risk_likelihood  = parse_int("risk_likelihood", data),
-        risk_impact      = parse_int("risk_impact", data),
-        ptw_based_on_risk_level = data.get("ptw_based_on_risk_level"),
+        risk_likelihood=parse_int("risk_likelihood", data),
+        risk_impact=parse_int("risk_impact", data),
+        ptw_based_on_risk_level=data.get("ptw_based_on_risk_level"),
         # priority
-        priority_urgency = parse_int("priority_urgency", data),
-        priority_impact  = parse_int("priority_impact", data),
+        priority_urgency=parse_int("priority_urgency", data),
+        priority_impact=parse_int("priority_impact", data),
         # budget
-        budgetary_planning = parse_decimal("budgetary_planning", data),
-        budgetary_actual   = parse_decimal("budgetary_actual", data),
+        budgetary_planning=parse_decimal("budgetary_planning", data),
+        budgetary_actual=parse_decimal("budgetary_actual", data),
         # misc
-        remarks          = data.get("remarks", ""),
-        unattained_reason= data.get("unattained_reason") or None,
+        remarks=data.get("remarks", ""),
+        unattained_reason=data.get("unattained_reason") or None,
     )
 
     # basic validation example
     if task_kwargs["plan_start_date"] is None or task_kwargs["plan_end_date"] is None:
-        return ApiResponse.error(message="Invalid plan start/end date.", error={"fields":["plan_start_date","plan_end_date"]}, status=400)
+        return ApiResponse.error(message="Invalid plan start/end date.", error={"fields": ["plan_start_date", "plan_end_date"]}, status=400)
 
     # ── 4. Persist and respond ───────────────────────────────────────
     task = Task.objects.create(**task_kwargs)
     for pic_id in pic_ids:
         user = get_object_or_404(User, pk=pic_id)
         TaskAssignment.objects.create(task=task, user=user)
-    return ApiResponse.ok(message ="Task created successfully!", status=201)
+    return ApiResponse.ok(message="Task created successfully!", status=201)
+
 
 @require_POST
 def tasks_update(request, task_id):
@@ -132,7 +144,8 @@ def tasks_update(request, task_id):
     if not (is_planner or is_pic):
         return ApiResponse.error(message="Forbidden", status=403)
 
-    allowed = ["status", "unattained_reason"] if not is_planner else request.POST.keys()
+    allowed = [
+        "status", "unattained_reason"] if not is_planner else request.POST.keys()
 
     for field in allowed:
         if field in request.POST:
@@ -141,8 +154,106 @@ def tasks_update(request, task_id):
     task.save()
     return ApiResponse.ok(message="Updated")
 
-def task_delete(pk):
+
+def tasks_delete(pk):
     task = get_object_or_404(Task, pk=pk)
     sprint_id = task.sprint.id
     task.delete()
     return redirect('task_list', sprint_id=sprint_id)
+
+
+def tasks_redirect_view(request, issue_id):
+    task = get_object_or_404(Task, issue_id=issue_id)
+    slug = slugify(task.taskname)
+    return redirect('tasks:tasks_detail', issue_id=issue_id, task_name=slug)
+
+
+def tasks_detail_view(request, issue_id, task_name=None):
+    task = get_object_or_404(Task, issue_id=issue_id)
+    sprints = Sprint.objects.filter(project=task.sprint.project)
+    pics = User.objects.filter(
+        assigned_projects__project=task.sprint.project).distinct()
+    assigned_user_ids = task.taskassignment_set.all().values_list('user_id', flat=True)
+    return render(request, 'tasks/tasks_detail.html',
+                  {
+                      'task': task,
+                      'status_choices': Status.choices,
+                      'risk_level_choices': RiskLevel.choices,
+                      'rmu_choices': RMU.choices,
+                      'section_choices': Section.choices,
+                      'ptw_choices': PtwBasedOnRiskLevel.choices,
+                      'sprints': sprints,
+                      'pics': pics,
+                      'assigned_user_ids': assigned_user_ids,
+                  })
+
+
+@csrf_exempt
+def update_task_ajax(request):
+    if request.method == "POST":
+        task = get_object_or_404(Task, id=request.POST.get('task_id'))
+        changes = []
+        
+        def check_and_update(field):
+            old_value = getattr(task, field)
+            new_value = request.POST.get(field)
+            # Handle checkbox booleans
+            if isinstance(old_value, bool):
+                new_value = request.POST.get(field) == 'on'
+            if str(old_value) != str(new_value) and new_value is not None:
+                setattr(task, field, new_value)
+                pretty_field = prettify_field(field)
+                changes.append(f"{pretty_field} changed from '{old_value}' to '{new_value}'")
+
+        updatable_fields = [
+            'taskname','rmu', 'section', 'location', 'planned_work_duration', 'planned_manpower',
+            'remarks', 'unattained_reason', 'risk_level', 'risk_likelihood', 'risk_impact',
+            'priority_urgency', 'priority_impact', 'ptw_based_on_risk_level',
+            'budgetary_planning', 'budgetary_actual', 'status'
+        ]
+
+        for field in updatable_fields:
+            check_and_update(field)
+
+        pics = request.POST.getlist('pic_ids')
+        if pics:
+            current_pics = set(
+                task.taskassignment_set.values_list('user_id', flat=True))
+            new_pics = set(map(int, pics))
+            added_pics = new_pics - current_pics
+            removed_pics = current_pics - new_pics
+
+            for pic_id in added_pics:
+                user = get_object_or_404(User, id=pic_id)
+                TaskAssignment.objects.get_or_create(task=task, user=user)
+                changes.append(f"Added PIC with name: {user.first_name} {user.last_name}")
+
+            for pic_id in removed_pics:
+                TaskAssignment.objects.filter(
+                    task=task, user_id=pic_id).delete()
+                user = get_object_or_404(User, id=pic_id)
+                changes.append(f"Removed PIC with name: {user.first_name} {user.last_name}")
+
+        sprint = request.POST.get('sprint')
+        if sprint:
+            new_sprint = get_object_or_404(Sprint, id=sprint)
+            if task.sprint != new_sprint:
+                changes.append(
+                    f"Sprint changed from {task.sprint.name} to {new_sprint.name}")
+                task.sprint = new_sprint
+
+        # Save changes and log history
+        if changes:
+            task.save(user=request.user)
+            change_description = "; ".join(changes)
+            ActivityHistory.objects.create(
+                task=task, description=change_description)
+            return JsonResponse({
+                "success": True,
+                "timestamp": now().strftime("%Y-%m-%d %H:%M"),
+                "change_description": change_description,
+            })
+
+        return JsonResponse({"success": True, "message": "No changes detected."})
+
+    return JsonResponse({"success": False}, status=400)

@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from common.models.base import BaseModel
 from .enums import RMU, Section, Status, RiskLevel, PtwBasedOnRiskLevel
 
@@ -26,6 +25,7 @@ class BaseTasks(BaseModel):
     ptw_based_on_risk_level = models.CharField(max_length=10, choices=PtwBasedOnRiskLevel.choices, default=PtwBasedOnRiskLevel.A)
     budgetary_planning = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     budgetary_actual = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    issue_id = models.CharField(max_length=20, blank=True)
     json_data = None
     
     class Meta:
@@ -41,4 +41,12 @@ class BaseTasks(BaseModel):
             self.risk_level = RiskLevel.MI
         else:
             self.risk_level = RiskLevel.LOW
+        
+        if not self.issue_id:
+            # Generate issue_id as prefix + (number of tasks in the current project + 1)
+            if hasattr(self, 'sprint') and hasattr(self.sprint, 'project'):
+                project = self.sprint.project
+                from .models import Task  # Import here to avoid circular import
+                task_count = Task.objects.filter(sprint__project=project).count()
+                self.issue_id = f"{project.prefix}-{task_count + 1}"
         super().save(*args, **kwargs)

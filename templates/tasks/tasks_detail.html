@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container py-2 d-lg-flex fs-8">
+    <div class="container flex-grow-1 mb-5 me-lg-5" id="task-container">
+        <h2>{{ task.issue_id }}</h2>
+        <div class="mb-2">
+            <button id="edit-btn" class="btn btn-sm btn-outline-primary">
+                ✏️ Edit
+            </button>
+            <button id="save-btn" class="btn btn-sm btn-success d-none">
+                💾 Save
+            </button>
+        </div>
+        <p class="text-muted fs-7">
+            <strong>Created by:</strong> {{ task.created_by.first_name }} |
+            <strong>Created on:</strong> {{ task.created_at|date:"Y-m-d H:i" }} |
+            <strong>Last updated:</strong> {{ task.updated_at|date:"Y-m-d H:i" }}
+        </p>
+        <form id="edit-form">
+            {% csrf_token %}
+            <input type="hidden" name="task_id" value="{{ task.id }}" />
+            <textarea class="form-control fs-7" name="taskname" readonly>{{ task.taskname }}</textarea>
+
+            <div class="row g-3 mt-2">
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">RMU</label>
+                    <select name="rmu" class="form-select form-control fs-7" disabled>
+                        {% for value, label in rmu_choices %}
+                            <option value="{{ value }}" {% if task.rmu == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Section</label>
+                    <select name="section" class="form-select form-control fs-7" disabled>
+                        {% for value, label in section_choices %}
+                            <option value="{{ value }}" {% if task.section == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Plan Start Date</label>
+                    <input type="text" name="plan_start_date" class="form-control fs-7" value="{{ task.plan_start_date }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Plan End Date</label>
+                    <input type="text" name="plan_end_date" class="form-control fs-7" value="{{ task.plan_end_date }}" readonly>
+                </div>
+                <div class="mb-2 col-md-1">
+                    <label class="form-label me-5">Break In</label>
+                    <input type="checkbox" name="break_in" class="form-check-input" {% if task.break_in %}checked{% endif %} disabled>
+                </div>
+                <div class="mb-2 col-md-1">
+                    <label class="form-label">Need Contingency</label>
+                    <input type="checkbox" name="need_contingency" class="form-check-input" {% if task.need_contingency %}checked{% endif %} disabled>
+                </div>
+                <div class="mb-2 col-md-1">
+                    <label class="form-label">Work Pack Readiness</label>
+                    <input type="checkbox" name="work_park_readiness" class="form-check-input" {% if task.work_pack_readiness %}checked{% endif %} disabled>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="location" class="form-control fs-7" value="{{ task.location }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Planned Work Duration</label>
+                    <input type="number" name="plaaned_work_duration" class="form-control fs-7" value="{{ task.planned_work_duration }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Planned Manpower</label>
+                    <input type="number" name="planned_manpower" class="form-control fs-7" value="{{ task.planned_manpower }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control fs-7" name="remarks" readonly>{{ task.remarks }}</textarea>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Unattained Reason</label>
+                    <textarea class="form-control fs-7" name="unattained_reason" readonly>{{ task.unattained_reason }}</textarea>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Risk Level</label>
+                    <input type="text" class="form-control fs-7" name="risk_level" value="{{ task.get_risk_level_display }}" readonly disabled>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Risk Likelihood</label>
+                    <input type="number" class="form-control fs-7" name="risk_likelihood" value="{{ task.risk_likelihood }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Risk Impact</label>
+                    <input type="number" class="form-control fs-7" name="risk_impact" value="{{ task.risk_impact }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">PTW Based On Risk Level</label>
+                    <select name="ptw_based_on_risk_level" class="form-select form-control fs-7" disabled>
+                        {% for value, label in ptw_choices %}
+                            <option value="{{ value }}" {% if task.ptw_based_on_risk_level == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Budgetary Planning</label>
+                    <input type="number" class="form-control fs-7" name="budgetary_planning" value="{{ task.budgetary_planning }}" readonly>
+                </div>
+                <div class="mb-2 col-md-3">
+                    <label class="form-label">Budgetary Actual</label>
+                    <input type="number" class="form-control fs-7" name="budgetary_actual" value="{{ task.budgetary_actual }}" readonly>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Floating Card with Task Fields -->
+    <div class="card floating-card shadow sticky-top mb-5">
+        <div class="card-body">
+        <p class="form-label fs-8">Project</p>
+        <p class="fs-7">{{ task.sprint.project.name }}</p>
+        <form id="update-task-form">
+            {% csrf_token %}
+            <input type="hidden" name="task_id" value="{{ task.id }}" />
+            <div class="mb-2">
+                <label for="priority_urgency" class="form-label">Priority Urgency</label>
+                <input
+                    type="number"
+                    id="priority_urgency"
+                    name="priority_urgency"
+                    class="form-control fs-7"
+                    value="{{ task.priority_urgency }}"
+                    {% if request.user.groups.all.0.name == "Person In Charge" %}
+                    readonly
+                    {% endif %}
+                />
+            </div>
+            <div class="mb-2">
+                <label for="priority_impact" class="form-label">Priority Impact</label>
+                <input
+                    type="number"
+                    id="priority_impact"
+                    name="priority_impact"
+                    class="form-control fs-7"
+                    value="{{ task.priority_impact }}"
+                    {% if request.user.groups.all.0.name == "Person In Charge" %}
+                    readonly
+                    {% endif %}
+                />
+            </div>
+            <div class="mb-2">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" name="status" class="form-select fs-7">
+                    {% for st in status_choices %} 
+                        <option value="{{ st.0 }}" {% if task.status == st.0 %} selected {% endif %}>
+                            {{ st.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="form-label d-block mb-2"
+                    >PIC (select one or more)</label
+                >
+                <div
+                    class="border rounded p-2"
+                    style="max-height: 14rem; overflow-y: auto"
+                >
+                    {% for user in pics %}
+                        <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="pic_ids"
+                            id="pic{{ user.id }}"
+                            value="{{ user.id }}"
+                            {% if user.id in assigned_user_ids %}
+                            checked
+                            {% endif %}
+                            {% if request.user.groups.all.0.name == "Person In Charge" %}
+                            disabled
+                            {% endif %}
+                        />
+                        <label class="form-check-label" for="pic{{ user.id }}">
+                            {{ user.get_full_name }}
+                        </label>
+                        </div>
+                    {% empty %}
+                    <p class="text-muted small mb-0">No users available.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="mb-2">
+                <label for="sprints" class="form-label">Sprint</label>
+                <select 
+                    id="sprints" 
+                    name="sprints" 
+                    class="form-select fs-7"
+                    {% if request.user.groups.all.0.name == "Person In Charge" %}
+                    disabled
+                    {% endif %}
+                >
+                    {% for sp in sprints %} 
+                        <option value="{{ sp.id }}" {% if task.sprint.id == sp.id %} selected {% endif %}>
+                            {{ sp.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fs-7">Update</button>
+        </form>
+        </div>
+    </div>
+</div>
+<div class="container mb-5">
+    <!-- Activity History Section -->
+    <div class="container">
+        <h5>Activity History</h5>
+        <ul id="activity-history" class="list-group">
+            {% for history in task.activityhistory_set.all|dictsortreversed:"created_at" %}
+            <li class="list-group-item">
+            <strong>{{ history.timestamp|date:"Y-m-d H:i" }}</strong> - {{ history.description }}
+            </li>
+            {% empty %}
+            <li class="list-group-item">No history yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock content %} {% block script %}
+<script>
+    const updateTaskUrl = "{% url 'tasks:tasks_update_ajax' %}";
+</script>
+<script src="{% static 'js/tasks/tasks_detail.js' %}"></script>
+{% endblock script %}

@@ -2,7 +2,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.urls import reverse # type: ignore
 from django.contrib.auth.models import Group, User
 
@@ -12,6 +12,7 @@ from tasks.models.models import Task
 from .models import Project, ProjectAssignment
 from common.utils.model_utils import add_json_to_model
 
+@login_required
 def home(request):
     projects = Project.objects.all().order_by('-created_at')
     tasks = Task.objects.filter(taskassignment__user=request.user).select_related('sprint__project').order_by('-created_at')
