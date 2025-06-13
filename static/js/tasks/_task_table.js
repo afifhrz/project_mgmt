@@ -28,10 +28,10 @@ $(function () {
       { width: "61%" }, // task name
       { width: "7%" }, // status
       { width: "5%" }, // risk level
-      { width: "7%" }, // priority urgency
+      { width: "6%" }, // priority urgency
       { width: "6%" }, // priority impact
       { width: "9%" }, // created
-      { width: "5%" }, // actions
+      { width: "6%" }, // issue id
     ],
     language: {
       search: "_INPUT_",
