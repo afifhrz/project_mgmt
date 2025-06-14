@@ -16,10 +16,18 @@ $(document).ready(function () {
         type: 'POST',
         url: postUrl,
         data: data,
+        beforeSend: function () {
+          showLoading(); // Show loading indicator
+        },
         success: function (response) {
           $('#projectModal').modal('hide');
           $('#projectCreateForm')[0].reset();
           location.reload(); // or reload project list dynamically
+        },
+        complete: function () {
+          setTimeout(() => {
+            hideLoading(); // Hide loading indicator
+          }, loadingTimeout);
         },
         error: function (xhr) {
           alert(xhr.responseJSON?.error || 'An error occurred.');

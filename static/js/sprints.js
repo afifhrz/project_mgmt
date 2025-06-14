@@ -21,6 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
       type: "POST",
       url: url,
       data: $(form).serialize(),
+      beforeSend: function () {
+        showLoading(); // Show loading indicator
+      },
       success: function (response) {
         if (response.status === "success") {
           // Show success toast before reload
@@ -35,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           showToast("Something went wrong.", "danger");
         }
+      },
+      complete: function () {
+        setTimeout(() => hideLoading(), loadingTimeout); // Hide loading indicator
       },
       error: function (xhr) {
         const response = xhr.responseJSON;

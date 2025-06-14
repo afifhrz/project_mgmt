@@ -7,6 +7,9 @@ $(document).ready(function () {
       url: updateTaskUrl, // You need to implement this view
       type: "POST",
       data: formData,
+      beforeSend: function () {
+        showLoading(); // Show loading indicator
+      },
       success: function (response) {
         if (response.success) {
           showToast("Task updated successfully", "success");
@@ -16,6 +19,9 @@ $(document).ready(function () {
         } else {
           showToast("Failed to update task", "danger");
         }
+      },
+      complete: function () {
+        setTimeout(() => hideLoading(), loadingTimeout); // Hide loading indicator
       },
       error: function () {
         showToast("An error occurred while updating the task", "danger");
@@ -89,6 +95,9 @@ $(document).ready(function () {
       data: formData,
       processData: false, // Important to avoid query string encoding
       contentType: false, // Let the browser set it, including multipart boundary
+      beforeSend: function () {
+        showLoading(); // Show loading indicator
+      },
       success: function (response) {
         if (response.success) {
           // Optionally, return to read-only mode
@@ -151,6 +160,9 @@ $(document).ready(function () {
         } else {
           showToast("Failed to update task", "danger");
         }
+      },
+      complete: function () {
+        setTimeout(() => hideLoading(), loadingTimeout); // Hide loading indicator
       },
       error: function () {
         showToast("An error occurred while updating the task", "danger");

@@ -1,3 +1,4 @@
+let loadingTimeout = 1500; // Timeout for loading spinner in milliseconds
 function showLoading() 
 {
   $("#loadingSpinner").addClass("d-flex");

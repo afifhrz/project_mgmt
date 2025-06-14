@@ -81,12 +81,18 @@ $(function () {
       url: `/tasks/${id}/update/`,
       data: $(this).serialize(),
       headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+      beforeSend: function () {
+        showLoading(); // Show loading indicator
+      },
       success: function (resp) {
         if (resp.success) {
           location.reload(); // simplest: refresh table
         } else {
           alert(resp.message);
         }
+      },
+      complete: function () {
+        setTimeout(() => hideLoading(), loadingTimeout); // Hide loading indicator
       },
       error: () => alert("Server error"),
     });

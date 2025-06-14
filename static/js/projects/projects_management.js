@@ -57,7 +57,7 @@ function loadAssignments(projectId) {
     },
 
     complete: function () {
-      setTimeout(() => hideLoading(), 1500);
+      setTimeout(() => hideLoading(), loadingTimeout);
     },
 
     error: function () {
