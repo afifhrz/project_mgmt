@@ -23,7 +23,7 @@ class Project(BaseProjects):
         super().save(*args, **kwargs)
 
 class Sprint(BaseProjects):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
 
@@ -31,8 +31,8 @@ class Sprint(BaseProjects):
             return f"{self.name} ({self.start_date} - {self.end_date})"
 
 class ProjectAssignment(BaseModel):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='assignments')
-    user = models.ForeignKey(get_user_model(), on_delete=models.DO_NOTHING, related_name='assigned_projects')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='assignments')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='assigned_projects')
 
     class Meta:
         unique_together = ('project', 'user')

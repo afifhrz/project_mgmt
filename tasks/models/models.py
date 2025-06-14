@@ -5,40 +5,40 @@ from projects.models import Sprint
 from .base import BaseTasks
 
 class Epic(BaseTasks):
-    sprint = models.ForeignKey(Sprint, on_delete=models.DO_NOTHING)
+    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
 
 class Task(BaseTasks):
-    sprint = models.ForeignKey(Sprint, on_delete=models.DO_NOTHING)
-    epic = models.ForeignKey(Epic, on_delete=models.DO_NOTHING, related_name='tasks', null=True)
+    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
+    epic = models.ForeignKey(Epic, on_delete=models.CASCADE, related_name='tasks', null=True)
 
 class SubTask(BaseTasks):
-    task = models.ForeignKey(Task, on_delete=models.DO_NOTHING, related_name='subtasks')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
     
 class EpicAssignment(BaseModel):
-    epic = models.ForeignKey(Epic, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='assigned_epics')
+    epic = models.ForeignKey(Epic, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_epics')
 
     class Meta:
         unique_together = ('epic', 'user')
 
 class TaskAssignment(BaseModel):
-    task = models.ForeignKey(Task, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='assigned_tasks')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks')
 
     class Meta:
         unique_together = ('task', 'user')
         
 class SubTaskAssignment(BaseModel):
-    subtask = models.ForeignKey(SubTask, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='assigned_subtasks')
+    subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_subtasks')
 
     class Meta:
         unique_together = ('subtask', 'user')
 
 class ActivityHistory(BaseModel):
-    task = models.ForeignKey(Task, on_delete=models.DO_NOTHING, blank=True, null=True)
-    epic = models.ForeignKey(Epic, on_delete=models.DO_NOTHING, blank=True, null=True)
-    subtask = models.ForeignKey(SubTask, on_delete=models.DO_NOTHING, blank=True, null=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True)
+    epic = models.ForeignKey(Epic, on_delete=models.CASCADE, blank=True, null=True)
+    subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     
