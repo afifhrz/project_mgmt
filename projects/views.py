@@ -26,7 +26,7 @@ def home(request):
 @permission_required('projects.view_projectassignment', raise_exception=True)
 def projects_management(request, projectId):
     project = get_object_or_404(Project, id=projectId, created_by=request.user)
-    pic_group = Group.objects.get(name="Person In Charge")
+    pic_group = Group.objects.get(name="Section Planner")
     users = pic_group.user_set.all()
 
     if request.method == "POST":

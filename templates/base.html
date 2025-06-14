@@ -12,10 +12,6 @@
       crossorigin="anonymous"
     />
     <link
-      href="https://unpkg.com/tabulator-tables@4.1.4/dist/css/tabulator.min.css"
-      rel="stylesheet"
-    />
-    <link
       href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.1/r-3.0.4/datatables.min.css"
       rel="stylesheet"
       integrity="sha384-xqq98gA324C4ueen4nawqUMbuOtwI11GZOGylDfvOpOEhG3D8bH3Zab1cG7Z2k9F"
@@ -24,6 +20,9 @@
     <link href="{% static 'css/app.css' %}" rel="stylesheet" />
   </head>
   <body class="bg-light" data-role="{{ request.user.groups.all.0.name }}">
+    <div id="loadingSpinner" style="display:none; background-color: rgba(0, 0, 0, 0.5);" class="position-fixed translate-middle w-100 vh-100 top-50 start-50 align-items-center justify-content-center">
+      <img src="{% static 'images/loading.gif' %}" alt="Loading..." />
+    </div>
     <div
       aria-live="polite"
       aria-atomic="true"

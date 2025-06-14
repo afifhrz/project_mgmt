@@ -1,47 +1,70 @@
-let table;
+let dataTable;
 
 function loadAssignments(projectId) {
   $.ajax({
     url: `/projects/api/assignments/${projectId}/`,
     method: "GET",
+
+    beforeSend: function () {
+      showLoading();
+    },
+
     success: function (data) {
-      if (!table) {
-        table = new Tabulator("#assignmentTable", {
-          layout: "fitColumns",
+      if (!dataTable) {
+        dataTable = $("#assignmentTable").DataTable({
+          data: data,
           columns: [
-            { title: "Name", field: "name" },
-            { title: "Email", field: "email" },
+            { title: "Name", data: "name" },
+            { title: "Email", data: "email" },
             {
               title: "Action",
-              formatter: function () {
+              data: null,
+              orderable: false,
+              searchable: false,
+              render: function () {
                 return `<button class="btn btn-sm btn-danger unassign-btn">Unassign</button>`;
-              },
-              cellClick: function (e, cell) {
-                const userId = cell.getRow().getData().id;
-                const projectId = $("#projectSelect").val();
-                unassignUser(projectId, userId);
-              },
-            },
+              }
+            }
           ],
+          dom: 't', // Hide default UI if needed
+          autoWidth: false
         });
-      }
-      else {
-        table.setData(data);
+
+        // Delegate event listener to dynamic buttons
+        $('#assignmentTable tbody').on('click', '.unassign-btn', function () {
+          const rowData = dataTable.row($(this).closest('tr')).data();
+          const userId = rowData.id;
+          const projectId = $("#projectSelect").val();
+          unassignUser(projectId, userId);
+        });
+
+      } else {
+        dataTable.clear().rows.add(data).draw();
       }
 
+      // Handle empty state
       if (data.length === 0) {
-        table.replaceData([]);
-        table.clearData();
-        $("#assignmentTable").find(".tabulator-tableHolder").hide();
-        $("#assignmentTable").append(
-          '<div class="text-center text-muted bg-white p-3">No PIC assigned to this project.</div>'
-        );
+        $("#assignmentTable_wrapper").hide(); // hide DataTable
+        if ($("#noDataMessage").length === 0) {
+          $("#assignmentTable").after(
+            '<div id="noDataMessage" class="text-center text-muted bg-white p-3">No PIC assigned to this project.</div>'
+          );
+        }
       } else {
-        $("#assignmentTable").find(".text-muted").remove();
-        $("#assignmentTable").find(".tabulator-tableHolder").show();
-        table.replaceData(data);
+        $("#noDataMessage").remove();
+        $("#assignmentTable_wrapper").show();
       }
     },
+
+    complete: function () {
+      setTimeout(() => hideLoading(), 1500);
+    },
+
+    error: function () {
+      $("#assignmentTable").after(
+        '<div class="text-danger text-center p-2">Failed to load assignments.</div>'
+      );
+    }
   });
 }
 

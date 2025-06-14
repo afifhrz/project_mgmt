@@ -1,3 +1,12 @@
+function showLoading() 
+{
+  $("#loadingSpinner").addClass("d-flex");
+  $("#loadingSpinner").show();
+}
+function hideLoading() {
+  $("#loadingSpinner").removeClass("d-flex");
+  $("#loadingSpinner").hide();
+}
 document.addEventListener("DOMContentLoaded", function () {
   const toastElList = [].slice.call(document.querySelectorAll(".toast"));
   toastElList.forEach(function (toastEl) {
