@@ -24,8 +24,8 @@ def home(request):
         "status_choices": Status.choices,
         })
 @permission_required('projects.view_projectassignment', raise_exception=True)
-def projects_management(request):
-    projects = Project.objects.filter(created_by=request.user)
+def projects_management(request, projectId):
+    project = get_object_or_404(Project, id=projectId, created_by=request.user)
     pic_group = Group.objects.get(name="Person In Charge")
     users = pic_group.user_set.all()
 
@@ -45,7 +45,7 @@ def projects_management(request):
             return JsonResponse({"status": "unassigned"})
 
     return render(request, "projects/projects_management.html", {
-        "projects": projects,
+        "project": project,
         "users": users,
     })
 @permission_required('projects.change_projectassignment', raise_exception=True)

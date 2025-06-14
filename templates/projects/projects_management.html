@@ -5,11 +5,8 @@
     <div class="row mb-3">
       <div class="col">
         <label>Project</label>
-        <select class="form-select" id="projectSelect" required>
-          <option value="">Select Project Name</option>
-          {% for project in projects %}
-            <option value="{{ project.id }}">{{ project.name }}</option>
-          {% endfor %}
+        <select class="form-select" id="projectSelect" required disabled>
+          <option value="{{ project.id }}" selected>{{ project.name }}</option>
         </select>
       </div>
       <div class="col">

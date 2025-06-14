@@ -8,7 +8,7 @@ urlpatterns = [
     path('', projects_create, name='projects_create'),
     path('detail/<uuid:pk>', projects_detail, name='projects_detail'),
     path('delete/<uuid:id>', projects_delete, name='projects_delete'),
-    path('projects-management/', projects_management, name='projects_management'),
+    path('projects-management/<uuid:projectId>', projects_management, name='projects_management'),
     path('api/assignments/<uuid:project_id>/', project_assignments_api, name='assignments_api'),
     # sprint urls
     path('sprints', sprints_create, name='sprints_create'),
