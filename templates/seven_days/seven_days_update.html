@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title" id="sprintModalLabel">Edit Sprint</h5>
+  <h5 class="modal-title" id="sevenDayModalLabel">Edit 7D</h5>
   <button
     type="button"
     class="btn-close"
@@ -8,7 +8,7 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form method="post" id="sprintUpdateForm" action="{% url 'projects:sprints_edit' sprint.id %}">
+  <form method="post" id="sevenDayUpdateForm" action="{% url 'projects:seven_days_edit' seven_day.id %}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
     <div class="mb-3">
       <label for="name" class="form-label">Name</label>
@@ -17,7 +17,7 @@
         class="form-control"
         id="name"
         name="name"
-        value="{{ sprint.name }}"
+        value="{{ seven_day.name }}"
         required
       />
     </div>
@@ -28,7 +28,7 @@
         class="form-control"
         id="start_date"
         name="start_date"
-        value="{{ sprint.start_date|date:'Y-m-d' }}"
+        value="{{ seven_day.start_date|date:'Y-m-d' }}"
         required
       />
     </div>
@@ -39,10 +39,10 @@
         class="form-control"
         id="end_date"
         name="end_date"
-        value="{{ sprint.end_date|date:'Y-m-d' }}"
+        value="{{ seven_day.end_date|date:'Y-m-d' }}"
         required
       />
     </div>
-    <button type="submit" class="btn btn-primary">Update Sprint</button>
+    <button type="submit" class="btn btn-primary">Update 7D</button>
   </form>
 </div>

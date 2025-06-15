@@ -1,25 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 from common.models.base import BaseModel
-from projects.models import Sprint
+from projects.models import ThirtyDays, SevenDays
 from .base import BaseTasks
 
-class Epic(BaseTasks):
-    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
+
+class ThirtyDaysTask(BaseTasks):
+    thirty_days = models.ForeignKey(ThirtyDays, on_delete=models.CASCADE)
+
 
 class Task(BaseTasks):
-    sprint = models.ForeignKey(Sprint, on_delete=models.CASCADE)
-    epic = models.ForeignKey(Epic, on_delete=models.CASCADE, related_name='tasks', null=True)
+    thirty_days_task = models.ForeignKey(ThirtyDaysTask, on_delete=models.CASCADE, related_name='seven_days_tasks', null=True)
+    seven_days = models.ForeignKey(SevenDays, on_delete=models.CASCADE)
 
-class SubTask(BaseTasks):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
-    
-class EpicAssignment(BaseModel):
-    epic = models.ForeignKey(Epic, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_epics')
+
+class ThirtyDaysTaskAssignment(BaseModel):
+    thirty_days_task = models.ForeignKey(ThirtyDaysTask, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_thirty_days')
 
     class Meta:
-        unique_together = ('epic', 'user')
+        unique_together = ('thirty_days_task', 'user')
+
 
 class TaskAssignment(BaseModel):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
@@ -27,18 +28,10 @@ class TaskAssignment(BaseModel):
 
     class Meta:
         unique_together = ('task', 'user')
-        
-class SubTaskAssignment(BaseModel):
-    subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_subtasks')
 
-    class Meta:
-        unique_together = ('subtask', 'user')
 
 class ActivityHistory(BaseModel):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True)
-    epic = models.ForeignKey(Epic, on_delete=models.CASCADE, blank=True, null=True)
-    subtask = models.ForeignKey(SubTask, on_delete=models.CASCADE, blank=True, null=True)
+    thirty_days_task = models.ForeignKey(ThirtyDaysTask, on_delete=models.CASCADE, blank=True, null=True)
     description = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    

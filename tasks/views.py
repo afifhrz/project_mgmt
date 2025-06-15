@@ -1,4 +1,3 @@
-from django.forms import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
@@ -11,20 +10,18 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 
 from tasks.models.enums import RMU, PtwBasedOnRiskLevel, RiskLevel, Section, Status
-from .models.models import ActivityHistory, Sprint, Epic, Task, TaskAssignment
+from .models.models import ActivityHistory, SevenDays, ThirtyDaysTask, Task, TaskAssignment
 from common.utils.model_utils import add_json_to_model, prettify_field
 
-# --- Epic Views ---
 
-
-def epic_list(request, sprint_id):
-    sprint = get_object_or_404(Sprint, id=sprint_id)
+def thirty_day_tasks_list(request, sprint_id):
+    sprint = get_object_or_404(SevenDays, id=sprint_id)
     epics = Epic.objects.filter(sprint=sprint)
     return render(request, 'epic/list.html', {'sprint': sprint, 'epics': epics})
 
 
-def epic_create(request, sprint_id):
-    sprint = get_object_or_404(Sprint, id=sprint_id)
+def thirty_day_task_create(request, sprint_id):
+    sprint = get_object_or_404(SevenDays, id=sprint_id)
     form = EpicForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         epic = form.save(commit=False)
@@ -34,7 +31,7 @@ def epic_create(request, sprint_id):
     return render(request, 'epic/form.html', {'form': form})
 
 
-def epic_update(request, pk):
+def thirty_day_task_update(request, pk):
     epic = get_object_or_404(Epic, pk=pk)
     form = EpicForm(request.POST or None, instance=epic)
     if request.method == 'POST' and form.is_valid():
@@ -43,22 +40,22 @@ def epic_update(request, pk):
     return render(request, 'epic/form.html', {'form': form})
 
 
-def epic_delete(request, pk):
+def thirty_day_task_delete(request, pk):
     epic = get_object_or_404(Epic, pk=pk)
     sprint_id = epic.sprint.id
     epic.delete()
     return redirect('epic_list', sprint_id=sprint_id)
 
 
-def tasks_list(request, sprint_id):
-    sprint = get_object_or_404(Sprint, id=sprint_id)
-    tasks = Task.objects.filter(sprint=sprint)
+def tasks_list(request, seven_day_id):
+    seven_day = get_object_or_404(SevenDays, id=seven_day_id)
+    tasks = Task.objects.filter(seven_days=seven_day)
     tasks = add_json_to_model(tasks)
     # Filter users assigned to this sprint's project
     pics = User.objects.filter(
-        assigned_projects__project=sprint.project).distinct()
+        assigned_projects__project=seven_day.project).distinct()
     return render(request, 'tasks/tasks_list.html', {
-        'sprint': sprint,
+        'seven_day': seven_day,
         'tasks': tasks,
         'pics': pics,
         "rmu_choices": RMU.choices,
@@ -74,15 +71,15 @@ def tasks_create(request):
     data = request.POST
 
     # ── 1. Required ids ───────────────────────────────────────────────
-    sprint_id = data.get("sprint_id")
+    seven_day_id = data.get("seven_day_id")
     pic_ids = request.POST.getlist('pic_ids')
 
     # ── 2. Basic required text fields ────────────────────────────────
     taskname = data.get("taskname")
     status = data.get("status")
-    sprint = get_object_or_404(Sprint, pk=sprint_id) if sprint_id else None
+    seven_day = get_object_or_404(SevenDays, pk=seven_day_id) if seven_day_id else None
 
-    if not all([sprint, taskname, status, pic_ids]):
+    if not all([seven_day, taskname, status, pic_ids]):
         return JsonResponse(
             {"error": "Missing required fields."},
             status=400
@@ -90,7 +87,7 @@ def tasks_create(request):
 
     # ── 3. Build the Task kwargs dict ────────────────────────────────
     task_kwargs = dict(
-        sprint=sprint,
+        seven_days=seven_day,
         # basic
         rmu=data.get("rmu"),
         taskname=taskname,
@@ -150,9 +147,9 @@ def tasks_redirect_view(request, issue_id):
 
 def tasks_detail_view(request, issue_id, task_name=None):
     task = get_object_or_404(Task, issue_id=issue_id)
-    sprints = Sprint.objects.filter(project=task.sprint.project)
+    seven_days = SevenDays.objects.filter(project=task.seven_days.project)
     pics = User.objects.filter(
-        assigned_projects__project=task.sprint.project).distinct()
+        assigned_projects__project=task.seven_days.project).distinct()
     assigned_user_ids = task.taskassignment_set.all().values_list('user_id', flat=True)
     return render(request, 'tasks/tasks_detail.html',
                   {
@@ -162,7 +159,7 @@ def tasks_detail_view(request, issue_id, task_name=None):
                       'rmu_choices': RMU.choices,
                       'section_choices': Section.choices,
                       'ptw_choices': PtwBasedOnRiskLevel.choices,
-                      'sprints': sprints,
+                      'seven_days': seven_days,
                       'pics': pics,
                       'assigned_user_ids': assigned_user_ids,
                   })
@@ -173,7 +170,7 @@ def update_task_ajax(request):
     if request.method == "POST":
         task = get_object_or_404(Task, id=request.POST.get('task_id'))
         changes = []
-        
+
         def check_and_update(field):
             old_value = getattr(task, field)
             new_value = request.POST.get(field)
@@ -183,10 +180,11 @@ def update_task_ajax(request):
             if str(old_value) != str(new_value) and new_value is not None:
                 setattr(task, field, new_value)
                 pretty_field = prettify_field(field)
-                changes.append(f"{pretty_field} changed from '{old_value}' to '{new_value}'")
+                changes.append(
+                    f"{pretty_field} changed from '{old_value}' to '{new_value}' by {request.user.get_full_name()}")
 
         updatable_fields = [
-            'taskname','rmu', 'section', 'location', 'planned_work_duration', 'planned_manpower',
+            'taskname', 'rmu', 'section', 'location', 'planned_work_duration', 'planned_manpower',
             'remarks', 'unattained_reason', 'risk_level', 'risk_likelihood', 'risk_impact',
             'priority_urgency', 'priority_impact', 'ptw_based_on_risk_level',
             'budgetary_planning', 'budgetary_actual', 'status'
@@ -206,21 +204,23 @@ def update_task_ajax(request):
             for pic_id in added_pics:
                 user = get_object_or_404(User, id=pic_id)
                 TaskAssignment.objects.get_or_create(task=task, user=user)
-                changes.append(f"Added PIC with name: {user.first_name} {user.last_name}")
+                changes.append(
+                    f"Added PIC with name: {user.first_name} {user.last_name} by {request.user.get_full_name()}")
 
             for pic_id in removed_pics:
                 TaskAssignment.objects.filter(
                     task=task, user_id=pic_id).delete()
                 user = get_object_or_404(User, id=pic_id)
-                changes.append(f"Removed PIC with name: {user.first_name} {user.last_name}")
-
-        sprint = request.POST.get('sprint')
-        if sprint:
-            new_sprint = get_object_or_404(Sprint, id=sprint)
-            if task.sprint != new_sprint:
                 changes.append(
-                    f"Sprint changed from {task.sprint.name} to {new_sprint.name}")
-                task.sprint = new_sprint
+                    f"Removed PIC with name: {user.first_name} {user.last_name} by {request.user.get_full_name()}")
+
+        seven_days = request.POST.get('seven_days')
+        if seven_days:
+            new_seven_days = get_object_or_404(SevenDays, id=seven_days)
+            if task.seven_days != new_seven_days:
+                changes.append(
+                    f"7D changed from {task.seven_days.name} to {new_seven_days.name} by {request.user.get_full_name()}")
+                task.seven_days = new_seven_days
 
         # Save changes and log history
         if changes:

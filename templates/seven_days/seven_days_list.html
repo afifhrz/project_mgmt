@@ -1,52 +1,52 @@
 {% extends "base.html" %} {% load static %} {% block content %}
-<div class="container py-5">
+<div class="container py-5 w-75">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 fw-semibold mb-4">Sprints for {{ project.name }}</h2>
+    <h2 class="h4 fw-semibold mb-4">7D for {{ project.name }}</h2>
     <div>
-      <a href="{% url 'projects_list' %}" class="btn btn-outline-info">
-        🔙 Back to Project List
+      <a href="{% url 'projects:projects_detail' project.id %}" class="btn btn-outline-info">
+        🔙 Back to Project Detail 
       </a>
       <button
         data-project-id="{{ project.id }}"
-        data-url="{% url 'projects:sprints_create' %}"
+        data-url="{% url 'projects:seven_days_create' %}"
         class="btn btn-primary"
-        id="openSprintModal"
+        id="openSevenDaysModal"
       >
-        + Create Sprint
+        + Create 7D
       </button>
     </div>
   </div>
   <ul class="list-group">
-    {% for sprint in sprints %}
+    {% for seven_day in seven_days %}
     <li class="list-group-item">
-      <div class="fw-medium">{{ sprint.name }}</div>
+      <div class="fw-medium">{{ seven_day.name }}</div>
       <div class="text-muted small">
-        {{ sprint.start_date }} to {{ sprint.end_date }}
+        {{ seven_day.start_date }} to {{ seven_day.end_date }}
       </div>
       <div class="mt-2 d-flex gap-2">
         <a
-          href="{% url 'tasks:tasks_list' sprint.id %}"
+          href="{% url 'tasks:tasks_list' seven_day.id %}"
           class="btn btn-link text-success p-0"
         >
           View Tasks
         </a>
         <button
-          class="btn btn-link text-primary p-0 openEditSprintModal"
-          data-url="{% url 'projects:sprints_edit' sprint.id %}"
+          class="btn btn-link text-primary p-0 openEditSevenDaysModal"
+          data-url="{% url 'projects:seven_days_edit' seven_day.id %}"
         >
-          Edit Sprint
+          Edit 7D
         </button>
         <button
-          class="btn btn-link text-danger p-0 openDeleteSprintModal"
-          data-url="{% url 'projects:sprints_delete' sprint.id %}"
+          class="btn btn-link text-danger p-0 openDeleteSevenDaysModal"
+          data-url="{% url 'projects:seven_days_delete' seven_day.id %}"
         >
-          Delete Sprint
+          Delete 7D
         </button>
       </div>
     </li>
     {% empty %}
     <li class="list-group-item text-muted">
-      No sprints available for this project.
+      No 7D available for this project.
     </li>
     {% endfor %}
   </ul>
@@ -54,17 +54,17 @@
 
 <div
   class="modal fade"
-  id="sprintModal"
+  id="sevenDayModal"
   tabindex="-1"
-  aria-labelledby="sprintModalLabel"
+  aria-labelledby="sevenDayModalLabel"
   aria-hidden="true"
 >
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="sprintForm" method="post">
+      <form id="sevenDayForm" method="post">
         {% csrf_token %}
         <div class="modal-header">
-          <h5 class="modal-title" id="sprintModalLabel">Create Sprint</h5>
+          <h5 class="modal-title" id="sevenDayModalLabel">Create 7D</h5>
           <button
             type="button"
             class="btn-close"
@@ -75,7 +75,7 @@
         <div class="modal-body">
           <input type="hidden" name="project_id" id="projectIdInput" />
           <div class="mb-3">
-            <label for="sprintName" class="form-label">Sprint Name</label>
+            <label for="sprintName" class="form-label">7D Name</label>
             <input
               type="text"
               class="form-control"
@@ -121,14 +121,14 @@
 </div>
 
 <!-- Generic Modal -->
-<div class="modal fade" id="sprintModalEdit" tabindex="-1">
+<div class="modal fade" id="sevenDayModalEdit" tabindex="-1">
   <div class="modal-dialog">
-    <div class="modal-content" id="sprintModalContent">
+    <div class="modal-content" id="sevenDayModalContent">
       <!-- AJAX content goes here -->
     </div>
   </div>
 </div>
 
 {% endblock %} {% block script %}
-<script src="{% static 'js/sprints.js' %}"></script>
+<script src="{% static 'js/seven_days.js' %}"></script>
 {% endblock %}

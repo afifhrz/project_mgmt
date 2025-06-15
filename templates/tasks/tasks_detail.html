@@ -3,7 +3,7 @@
     <div class="container flex-grow-1 mb-5 me-lg-5" id="task-container">
         <h2>{{ task.issue_id }}</h2>
         <div class="mb-2">
-            <a href="{% url 'tasks:tasks_list' task.sprint.id %}" class="btn btn-sm btn-outline-info">
+            <a href="{% url 'tasks:tasks_list' task.seven_days.id %}" class="btn btn-sm btn-outline-info">
                 🔙 Back to Task List
             </a>
             <button id="edit-btn" class="btn btn-sm btn-outline-primary">
@@ -15,8 +15,8 @@
         </div>
         <p class="text-muted fs-7">
             <strong>Created by:</strong> {{ task.created_by.first_name }} |
-            <strong>Created on:</strong> {{ task.created_at|date:"Y-m-d H:i" }} |
-            <strong>Last updated:</strong> {{ task.updated_at|date:"Y-m-d H:i" }}
+            <strong>Created on:</strong> <text data-timestamp="{{ task.created_at|date:'c' }}">{{ task.created_at|date:"Y-m-d H:i" }}</text> |
+            <strong>Last updated:</strong> <text data-timestamp="{{ task.updated_at|date:'c' }}">{{ task.updated_at|date:"Y-m-d H:i" }}</text>
         </p>
         <form id="edit-form">
             {% csrf_token %}
@@ -46,11 +46,11 @@
                 </div>
                 <div class="mb-2 col-md-3">
                     <label class="form-label">Plan Start Date</label>
-                    <input type="text" name="plan_start_date" class="form-control fs-7" value="{{ task.plan_start_date }}" readonly>
+                    <input type="date" name="plan_start_date" class="form-control fs-7" value="{{ task.plan_start_date|date:'Y-m-d' }}" readonly>
                 </div>
                 <div class="mb-2 col-md-3">
                     <label class="form-label">Plan End Date</label>
-                    <input type="text" name="plan_end_date" class="form-control fs-7" value="{{ task.plan_end_date }}" readonly>
+                    <input type="date" name="plan_end_date" class="form-control fs-7" value="{{ task.plan_end_date|date:'Y-m-d' }}" readonly>
                 </div>
                 <div class="mb-2 col-md-1">
                     <label class="form-label me-5">Break In</label>
@@ -78,11 +78,11 @@
                 </div>
                 <div class="mb-2 col-md-3">
                     <label class="form-label">Remarks</label>
-                    <textarea class="form-control fs-7" name="remarks" readonly>{{ task.remarks }}</textarea>
+                    <textarea class="form-control fs-7" name="remarks" readonly>{{ task.remarks|default:'' }}</textarea>
                 </div>
                 <div class="mb-2 col-md-3">
                     <label class="form-label">Unattained Reason</label>
-                    <textarea class="form-control fs-7" name="unattained_reason" readonly>{{ task.unattained_reason }}</textarea>
+                    <textarea class="form-control fs-7" name="unattained_reason" readonly>{{ task.unattained_reason|default:'' }}</textarea>
                 </div>
                 <div class="mb-2 col-md-3">
                     <label class="form-label">Risk Level</label>
@@ -119,7 +119,7 @@
     </div>
 
     <!-- Floating Card with Task Fields -->
-    <div class="card floating-card shadow sticky-top mb-5">
+    <div class="z-2 card floating-card shadow sticky-top mb-5">
         <div class="card-body">
         <p class="form-label fs-8">Project</p>
         <p class="fs-7">{{ task.sprint.project.name }}</p>
@@ -134,9 +134,6 @@
                     name="priority_urgency"
                     class="form-control fs-7"
                     value="{{ task.priority_urgency }}"
-                    {% if request.user.groups.all.0.name == "Person In Charge" %}
-                    readonly
-                    {% endif %}
                 />
             </div>
             <div class="mb-2">
@@ -147,9 +144,6 @@
                     name="priority_impact"
                     class="form-control fs-7"
                     value="{{ task.priority_impact }}"
-                    {% if request.user.groups.all.0.name == "Person In Charge" %}
-                    readonly
-                    {% endif %}
                 />
             </div>
             <div class="mb-2">
@@ -181,9 +175,6 @@
                             {% if user.id in assigned_user_ids %}
                             checked
                             {% endif %}
-                            {% if request.user.groups.all.0.name == "Person In Charge" %}
-                            disabled
-                            {% endif %}
                         />
                         <label class="form-check-label" for="pic{{ user.id }}">
                             {{ user.get_full_name }}
@@ -195,18 +186,15 @@
                 </div>
             </div>
             <div class="mb-2">
-                <label for="sprints" class="form-label">Sprint</label>
+                <label for="seven_days" class="form-label">7D</label>
                 <select 
-                    id="sprints" 
-                    name="sprints" 
+                    id="seven_days" 
+                    name="seven_days" 
                     class="form-select fs-7"
-                    {% if request.user.groups.all.0.name == "Person In Charge" %}
-                    disabled
-                    {% endif %}
                 >
-                    {% for sp in sprints %} 
-                        <option value="{{ sp.id }}" {% if task.sprint.id == sp.id %} selected {% endif %}>
-                            {{ sp.name }}
+                    {% for sd in seven_days %} 
+                        <option value="{{ sd.id }}" {% if task.seven_days.id == sd.id %} selected {% endif %}>
+                            {{ sd.name }}
                         </option>
                     {% endfor %}
                 </select>
@@ -223,7 +211,7 @@
         <ul id="activity-history" class="list-group">
             {% for history in task.activityhistory_set.all|dictsortreversed:"created_at" %}
             <li class="list-group-item">
-            <strong>{{ history.timestamp|date:"Y-m-d H:i" }}</strong> - {{ history.description }}
+            <strong data-timestamp="{{ history.timestamp|date:'c' }}">{{ history.timestamp|date:"Y-m-d H:i" }}</strong> - {{ history.description }}
             </li>
             {% empty %}
             <li class="list-group-item">No history yet.</li>

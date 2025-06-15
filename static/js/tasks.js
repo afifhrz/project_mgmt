@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         createTaskModal.hide();
         setTimeout(function () {
           window.location.reload();
-        }, 3000);
+        }, loadingTimeout);
       },
       complete: function () {
         setTimeout(() => hideLoading(), loadingTimeout); // Hide loading indicator

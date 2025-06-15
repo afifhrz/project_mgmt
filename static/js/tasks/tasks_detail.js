@@ -15,7 +15,7 @@ $(document).ready(function () {
           showToast("Task updated successfully", "success");
           setTimeout(function () {
             location.reload(); // or any other follow-up logic
-          }, 3000);
+          }, loadingTimeout);
         } else {
           showToast("Failed to update task", "danger");
         }
@@ -44,28 +44,11 @@ $(document).ready(function () {
         const type = $field.attr("type");
         const tag = $field.prop("tagName").toLowerCase();
 
-        if (role === "Person In Charge") {
-          // Only make unattained_reason editable, others readonly/disabled
-          if (name === "unattained_reason") {
-            if (type === "checkbox" || type === "radio" || tag === "select") {
-              $field.prop("disabled", false);
-            } else {
-              $field.prop("readonly", false);
-            }
-          } else {
-            if (type === "checkbox" || type === "radio" || tag === "select") {
-              $field.prop("disabled", true);
-            } else {
-              $field.prop("readonly", true);
-            }
-          }
+        // For other roles, toggle as before (enable if disabled, disable if enabled)
+        if (type === "checkbox" || type === "radio" || tag === "select") {
+          $field.prop("disabled", !$field.prop("disabled"));
         } else {
-          // For other roles, toggle as before (enable if disabled, disable if enabled)
-          if (type === "checkbox" || type === "radio" || tag === "select") {
-            $field.prop("disabled", !$field.prop("disabled"));
-          } else {
-            $field.prop("readonly", !$field.prop("readonly"));
-          }
+          $field.prop("readonly", !$field.prop("readonly"));
         }
       });
 
@@ -108,41 +91,15 @@ $(document).ready(function () {
               const type = $field.attr("type");
               const tag = $field.prop("tagName").toLowerCase();
 
-              if (role === "Person In Charge") {
-                if (name === "unattained_reason") {
-                  // Keep unattained_reason editable (readonly false / disabled false)
-                  if (
-                    type === "checkbox" ||
-                    type === "radio" ||
-                    tag === "select"
-                  ) {
-                    $field.prop("disabled", false);
-                  } else {
-                    $field.prop("readonly", false);
-                  }
-                } else {
-                  // All other fields readonly/disabled
-                  if (
-                    type === "checkbox" ||
-                    type === "radio" ||
-                    tag === "select"
-                  ) {
-                    $field.prop("disabled", true);
-                  } else {
-                    $field.prop("readonly", true);
-                  }
-                }
+              // For other roles, all fields readonly/disabled
+              if (
+                type === "checkbox" ||
+                type === "radio" ||
+                tag === "select"
+              ) {
+                $field.prop("disabled", true);
               } else {
-                // For other roles, all fields readonly/disabled
-                if (
-                  type === "checkbox" ||
-                  type === "radio" ||
-                  tag === "select"
-                ) {
-                  $field.prop("disabled", true);
-                } else {
-                  $field.prop("readonly", true);
-                }
+                $field.prop("readonly", true);
               }
             }
           );
@@ -156,7 +113,7 @@ $(document).ready(function () {
           // Optional delay then reload
           setTimeout(() => {
             location.reload();
-          }, 3000);
+          }, loadingTimeout);
         } else {
           showToast("Failed to update task", "danger");
         }

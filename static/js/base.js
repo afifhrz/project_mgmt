@@ -1,6 +1,5 @@
 let loadingTimeout = 1500; // Timeout for loading spinner in milliseconds
-function showLoading() 
-{
+function showLoading() {
   $("#loadingSpinner").addClass("d-flex");
   $("#loadingSpinner").show();
 }
@@ -43,5 +42,22 @@ document.addEventListener("DOMContentLoaded", function () {
       minute: "2-digit",
     }); // or customize format
     td.textContent = localString;
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Convert all timestamps to local time
+  document.querySelectorAll("[data-timestamp]").forEach((element) => {
+    const utcDate = new Date(element.dataset.timestamp);
+    const localDate = utcDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const localTime = utcDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    element.textContent = `${localDate} ${localTime}`;
   });
 });

@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h5 class="modal-title" id="sprintModalLabel">Edit Sprint</h5>
+  <h5 class="modal-title" id="sevenDayModalLabel">Delete 7D</h5>
   <button
     type="button"
     class="btn-close"
@@ -8,11 +8,11 @@
   ></button>
 </div>
 <div class="modal-body">
-  <form method="post" id="sprintDeleteForm" action="{% url 'projects:sprints_delete' sprint.id %}">
+  <form method="post" id="sevenDayDeleteForm" action="{% url 'projects:seven_days_delete' seven_day.id %}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
     <p>
-      Are you sure you want to delete the sprint
-      <strong>{{ sprint.name }}</strong>?
+      Are you sure you want to delete the 7D
+      <strong>{{ seven_day.name }}</strong>?
     </p>
     <div class="d-flex justify-content-end">
       <button type="submit" class="btn btn-danger">Delete</button>

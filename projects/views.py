@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 from django.urls import reverse # type: ignore
 from django.contrib.auth.models import Group, User
 
-from projects.models import Sprint
+from projects.models import SevenDays
 from tasks.models.enums import Status
 from tasks.models.models import Task
 from .models import Project, ProjectAssignment
@@ -15,7 +15,7 @@ from common.utils.model_utils import add_json_to_model
 @login_required
 def home(request):
     projects = Project.objects.all().order_by('-created_at')
-    tasks = Task.objects.filter(taskassignment__user=request.user).select_related('sprint__project').order_by('-created_at')
+    tasks = Task.objects.filter(taskassignment__user=request.user).select_related('seven_days__project').order_by('-created_at')
     tasks = add_json_to_model(tasks)
     
     return render(request, 'home.html', {
@@ -89,8 +89,8 @@ def projects_delete(request, id):
 def projects_detail(request, pk):
     project = get_object_or_404(Project, pk=pk)
     return render(request, 'projects/projects_detail.html', {'project': project})
-@permission_required('projects.add_sprint', raise_exception=True)
-def sprints_create(request):
+@permission_required('projects.add_sevendays', raise_exception=True)
+def seven_days_create(request):
     if request.method == 'POST':
         project = get_object_or_404(Project, id=request.POST["project_id"])
         name = request.POST.get('name', '').strip()
@@ -110,17 +110,17 @@ def sprints_create(request):
         if start_date > end_date:
             return JsonResponse({"status": "error", "message": "Start date cannot be after end date."}, status=400)
 
-        overlapping = Sprint.objects.filter(
+        overlapping = SevenDays.objects.filter(
             project=project,
             start_date__lte=end_date,
             end_date__gte=start_date,
         ).exists()
 
         if overlapping:
-            return JsonResponse({"status": "error", "message": "Sprint dates overlap with an existing sprint."}, status=400)
+            return JsonResponse({"status": "error", "message": "Seven Days dates overlap with an existing seven days."}, status=400)
 
-        # Save new sprint
-        Sprint.objects.create(
+        # Save new seven_day
+        SevenDays.objects.create(
             project=project,
             name=name,
             start_date=start_date,
@@ -131,14 +131,14 @@ def sprints_create(request):
         return JsonResponse({"status": "success"})
     
     return JsonResponse({"status": "error", "message": "Invalid request method."}, status=405)
-@permission_required('projects.view_sprint', raise_exception=True)
-def sprints_list(request, project_id):
+@permission_required('projects.view_sevendays', raise_exception=True)
+def seven_days_list(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    sprints = Sprint.objects.filter(project=project).order_by('-start_date')
-    return render(request, 'sprints/sprints_list.html', {'sprints': sprints, 'project': project})
-@permission_required('projects.change_sprint', raise_exception=True)
-def sprints_update(request, pk):
-    sprint = get_object_or_404(Sprint, pk=pk)
+    seven_days = SevenDays.objects.filter(project=project).order_by('-start_date')
+    return render(request, 'seven_days/seven_days_list.html', {'seven_days': seven_days, 'project': project})
+@permission_required('projects.change_sevendays', raise_exception=True)
+def seven_days_update(request, pk):
+    seven_day = get_object_or_404(SevenDays, pk=pk)
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -148,29 +148,28 @@ def sprints_update(request, pk):
         if not name or not start_date or not end_date:
             return HttpResponseBadRequest("All fields are required.")
 
-        sprint.name = name
-        sprint.start_date = start_date
-        sprint.end_date = end_date
-        sprint.save(user=request.user)
-        messages.success(request, "Sprint updated successfully!")
-        return HttpResponseRedirect(reverse('projects:sprints_list', kwargs={'project_id': sprint.project.id}))
+        seven_day.name = name
+        seven_day.start_date = start_date
+        seven_day.end_date = end_date
+        seven_day.save(user=request.user)
+        messages.success(request, "7D updated successfully!")
+        return HttpResponseRedirect(reverse('projects:seven_days_list', kwargs={'project_id': seven_day.project.id}))
 
-    return render(request, "sprints/sprints_update.html", {"sprint": sprint})
-@permission_required('projects.delete_sprint', raise_exception=True)
-def sprints_delete(request, pk):
-    print("ok")
-    sprint = get_object_or_404(Sprint, pk=pk)
+    return render(request, "seven_days/seven_days_update.html", {"seven_day": seven_day})
+@permission_required('projects.delete_sevendays', raise_exception=True)
+def seven_days_delete(request, pk):
+    seven_day = get_object_or_404(SevenDays, pk=pk)
 
     if request.method == 'POST':
-        sprint.delete()
-        messages.success(request, "Sprint deleted successfully!")
-        return HttpResponseRedirect(reverse('projects:sprints_list', kwargs={'project_id': sprint.project.id}))
+        seven_day.delete()
+        messages.success(request, "7D deleted successfully!")
+        return HttpResponseRedirect(reverse('projects:seven_days_list', kwargs={'project_id': seven_day.project.id}))
 
-    return render(request, 'sprints/sprints_delete.html', {'sprint': sprint})
-@permission_required('projects.view_sprint', raise_exception=True)
-def sprint_detail(request, sprint_id):
-    sprint = get_object_or_404(Sprint, id=sprint_id)
-    tasks = Task.objects.filter(epic__sprint=sprint)
+    return render(request, 'seven_days/seven_days_delete.html', {'seven_day': seven_day})
+@permission_required('projects.view_sevendays', raise_exception=True)
+def seven_day_detail(request, seven_day_id):
+    seven_day = get_object_or_404(SevenDays, id=seven_day_id)
+    tasks = Task.objects.filter(thirty_days__seven_day=seven_day)
 
     tasks_by_status = {
         'OPEN': tasks.filter(status='OPEN'),
@@ -179,7 +178,7 @@ def sprint_detail(request, sprint_id):
         'DONE': tasks.filter(status='DONE'),
     }
 
-    return render(request, 'sprints/sprint_detail.html', {
-        'sprint': sprint,
+    return render(request, 'seven_days/seven_day_detail.html', {
+        'seven_day': seven_day,
         'tasks_by_status': tasks_by_status,
     })
