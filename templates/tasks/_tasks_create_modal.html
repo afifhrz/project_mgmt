@@ -1,4 +1,3 @@
-<!-- templates/tasks/_create_task_modal.html -->
 <div
   class="modal fade"
   id="createTaskModal"
@@ -8,7 +7,11 @@
 >
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
+      {% if type == "thirty_days" %}
       <form id="createTaskForm" data-url="{% url 'tasks:tasks_create' %}">
+      {% else %}
+      <form id="createTaskForm" data-url="{% url 'tasks:tasks_create' %}">
+      {% endif %}
         {% csrf_token %}
 
         <!-- header -->

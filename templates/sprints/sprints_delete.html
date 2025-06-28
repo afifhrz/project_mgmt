@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title" id="sprintModalLabel">Delete {{ type|upper }}</h5>
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="modal"
+    aria-label="Close"
+  ></button>
+</div>
+<div class="modal-body">
+  <form method="post" id="sprintDeleteForm" action="{% url 'projects:sprints_delete' sprint.id %}?type={{ type }}">
+    {% csrf_token %}
+    <p>
+      Are you sure you want to delete the {{ type|upper }}
+      <strong>{{ sprint.name }}</strong>?
+    </p>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-danger">Delete</button>
+      <button
+        type="button"
+        class="btn btn-secondary ms-2"
+        data-bs-dismiss="modal"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

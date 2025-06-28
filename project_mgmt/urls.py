@@ -20,7 +20,7 @@ from django.urls import path # type: ignore
 from decorator_include import decorator_include
 from django.contrib.auth.decorators import login_required
 
-from projects.views import home
+from projects.views.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),

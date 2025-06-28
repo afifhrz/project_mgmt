@@ -1,0 +1,41 @@
+{% load static %}
+<div class="d-flex flex-column gap-3">
+  <div class="table-responsive">
+    <table id="tasksTable" class="table table-bordered w-100 fs-8 table-hover">
+      <thead class="table-secondary">
+        <tr>
+          <th class="text-center align-middle">Activity/Task Name</th>
+          <th class="text-center align-middle">Status</th>
+          <th class="text-center align-middle">
+            Risk<br />Level
+          </th>
+          <th class="text-center align-middle">
+            Prior<br />Urgency
+          </th>
+          <th class="text-center align-middle">
+            Prior<br />Impact
+          </th>
+          <th class="text-center align-middle">Created</th>
+          <th class="text-center align-middle">Issue ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ task.taskname }}</td>
+            <td>{{ task.get_status_display }}</td>
+            <td>{{ task.get_risk_level_display }}</td>
+            <td>{{ task.priority_urgency }}</td>
+            <td>{{ task.priority_impact }}</td>
+            <td data-created="{{ task.created_at|date:'c' }}"></td>
+            <td>
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'tasks:tasks_redirect' task.issue_id %}">{{ task.issue_id }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'tasks/_tasks_update_modal.html' %}

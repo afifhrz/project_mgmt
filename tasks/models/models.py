@@ -6,12 +6,12 @@ from .base import BaseTasks
 
 
 class ThirtyDaysTask(BaseTasks):
-    thirty_days = models.ForeignKey(ThirtyDays, on_delete=models.CASCADE)
+    sprint = models.ForeignKey(ThirtyDays, on_delete=models.CASCADE)
 
 
 class Task(BaseTasks):
-    thirty_days_task = models.ForeignKey(ThirtyDaysTask, on_delete=models.CASCADE, related_name='seven_days_tasks', null=True)
-    seven_days = models.ForeignKey(SevenDays, on_delete=models.CASCADE)
+    parent_task = models.ForeignKey(ThirtyDaysTask, on_delete=models.CASCADE, related_name='seven_days_tasks', null=True)
+    sprint = models.ForeignKey(SevenDays, on_delete=models.CASCADE)
 
 
 class ThirtyDaysTaskAssignment(BaseModel):

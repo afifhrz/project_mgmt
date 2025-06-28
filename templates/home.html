@@ -1,14 +1,14 @@
 {% extends 'base.html' %} {% load static %} {% block content %} 
-{% if request.user.groups.all.0.name == "General Manager" or request.user.groups.all.0.name == "Asset Planner"%} 
+{% if request.user.groups.all.0.name == "General Manager" or request.user.groups.all.0.name == "Asset Planner" %} 
   {% include "projects/_projects_list.html" %} 
 {% endif %} 
 {% if request.user.groups.all.0.name == "Section Planner" %}
   <div class="container py-5">
-    {% include "tasks/_task_table.html" %}
+    {% include "tasks/_tasks_table.html" %}
   </div>
 {% endif %} {% endblock %} 
 
 {% block script %}
-  <script src="{% static 'js/projects.js' %}"></script>
+  <script src="{% static 'js/projects/projects.js' %}"></script>
   <script src="{% static 'js/tasks/_task_table.js' %}"></script>
 {% endblock %}

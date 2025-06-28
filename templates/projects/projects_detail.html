@@ -1,5 +1,6 @@
 {% extends 'base.html' %} {% block content %}
-<div class="container py-5">
+<div class="container w-75 bg-white shadow-sm rounded p-5">
+  <h2><strong class="d-block mb-3">Project Details</strong></h2>
   <h1 class="h4 fw-semibold mb-4">{{ project.name }}</h1>
 
   <div class="mb-3">
@@ -14,16 +15,39 @@
 
   <div class="mt-4">
     <a
-      href="{% url 'projects:seven_days_list' project.id %}"
+      href="{% url 'projects:sprints_list' project.id %}?type=30d"
       class="btn btn-success me-2"
-      >View 7D List</a
+      >View 30D List</a
     >
-    <a href="{% url 'projects:projects_delete' project.id %}" class="btn btn-danger me-2"
-      >Delete Project</a
+    <button
+      type="button"
+      class="btn btn-danger me-2"
+      data-bs-toggle="modal"
+      data-bs-target="#deleteProjectModal"
     >
+      Delete Project
+    </button>
     <a href="{% url 'projects_list' %}" class="btn btn-secondary"
       >Back to Project List</a
     >
+  </div>
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteProjectModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete project "{{ project.name }}"? This action cannot be undone and will remove all associated data.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <a href="{% url 'projects:projects_delete' project.id %}" class="btn btn-danger">Delete Project</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

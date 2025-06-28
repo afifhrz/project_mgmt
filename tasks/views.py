@@ -9,53 +9,150 @@ from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 
+from projects.models import SevenDays, ThirtyDays
+from projects.models.enums import SprintType
 from tasks.models.enums import RMU, PtwBasedOnRiskLevel, RiskLevel, Section, Status
 from .models.models import ActivityHistory, SevenDays, ThirtyDaysTask, Task, TaskAssignment
 from common.utils.model_utils import add_json_to_model, prettify_field
 
-
-def thirty_day_tasks_list(request, sprint_id):
-    sprint = get_object_or_404(SevenDays, id=sprint_id)
-    epics = Epic.objects.filter(sprint=sprint)
-    return render(request, 'epic/list.html', {'sprint': sprint, 'epics': epics})
+# Tasks List View for Thirty Days
 
 
-def thirty_day_task_create(request, sprint_id):
-    sprint = get_object_or_404(SevenDays, id=sprint_id)
-    form = EpicForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        epic = form.save(commit=False)
-        epic.sprint = sprint
-        epic.save()
-        return redirect('epic_list', sprint_id=sprint.id)
-    return render(request, 'epic/form.html', {'form': form})
+def thirty_day_tasks_list(request, thirty_day_id):
+    thirty_day = get_object_or_404(ThirtyDays, id=thirty_day_id)
+    thirty_day_tasks = ThirtyDaysTask.objects.filter(thirty_days=thirty_day)
+    thirty_day_tasks = add_json_to_model(thirty_day_tasks)
+    return render(request, 'tasks/tasks_list.html', {
+        "type": "thirty_days",
+        "sprint": thirty_day,
+        "sprint_tasks": thirty_day_tasks,
+        "rmu_choices": RMU.choices,
+        "section_choices": Section.choices,
+        "risk_level_choices": RiskLevel.choices,
+        "ptw_choices": PtwBasedOnRiskLevel.choices,
+        "status_choices": Status.choices,
+    })
 
 
-def thirty_day_task_update(request, pk):
-    epic = get_object_or_404(Epic, pk=pk)
-    form = EpicForm(request.POST or None, instance=epic)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect('epic_list', sprint_id=epic.sprint.id)
-    return render(request, 'epic/form.html', {'form': form})
+@require_POST
+def tasks_create(request):
+    data = request.POST
+
+    # ── 1. Required ids ───────────────────────────────────────────────
+    seven_day_id = data.get("seven_day_id")
+    pic_ids = request.POST.getlist('pic_ids')
+
+    # ── 2. Basic required text fields ────────────────────────────────
+    taskname = data.get("taskname")
+    status = data.get("status")
+    seven_day = get_object_or_404(
+        SevenDays, pk=seven_day_id) if seven_day_id else None
+
+    if not all([seven_day, taskname, status, pic_ids]):
+        return JsonResponse(
+            {"error": "Missing required fields."},
+            status=400
+        )
+
+    # ── 3. Build the Task kwargs dict ────────────────────────────────
+    task_kwargs = dict(
+        seven_days=seven_day,
+        # basic
+        rmu=data.get("rmu"),
+        taskname=taskname,
+        section=data.get("section"),
+        status=status,
+        # planning
+        plan_start_date=parse_date("plan_start_date", data),
+        plan_end_date=parse_date("plan_end_date", data),
+        planned_work_duration=parse_int("planned_work_duration", data),
+        planned_manpower=parse_int("planned_manpower", data),
+        location=data.get("location", ""),
+        # flags
+        break_in=_to_bool(data.get("break_in")),
+        need_contingency=_to_bool(data.get("need_contingency")),
+        work_pack_readiness=_to_bool(data.get("work_pack_readiness", "on")),
+        # risk
+        risk_likelihood=parse_int("risk_likelihood", data),
+        risk_impact=parse_int("risk_impact", data),
+        ptw_based_on_risk_level=data.get("ptw_based_on_risk_level"),
+        # priority
+        priority_urgency=parse_int("priority_urgency", data),
+        priority_impact=parse_int("priority_impact", data),
+        # budget
+        budgetary_planning=parse_decimal("budgetary_planning", data),
+        budgetary_actual=parse_decimal("budgetary_actual", data),
+        # misc
+        remarks=data.get("remarks", ""),
+        unattained_reason=data.get("unattained_reason") or None,
+        created_by=request.user,
+        updated_by=request.user,
+    )
+
+    # basic validation example
+    if task_kwargs["plan_start_date"] is None or task_kwargs["plan_end_date"] is None:
+        return ApiResponse.error(message="Invalid plan start/end date.", error={"fields": ["plan_start_date", "plan_end_date"]}, status=400)
+
+    # ── 4. Persist and respond ───────────────────────────────────────
+    task = Task.objects.create(**task_kwargs)
+    for pic_id in pic_ids:
+        user = get_object_or_404(User, pk=pic_id)
+        TaskAssignment.objects.create(task=task, user=user)
+    return ApiResponse.ok(message="Task created successfully!", status=201)
 
 
-def thirty_day_task_delete(request, pk):
-    epic = get_object_or_404(Epic, pk=pk)
-    sprint_id = epic.sprint.id
-    epic.delete()
-    return redirect('epic_list', sprint_id=sprint_id)
+def tasks_delete(pk):
+    task = get_object_or_404(Task, pk=pk)
+    sprint_id = task.sprint.id
+    task.delete()
+    return redirect('task_list', sprint_id=sprint_id)
 
 
-def tasks_list(request, seven_day_id):
-    seven_day = get_object_or_404(SevenDays, id=seven_day_id)
-    tasks = Task.objects.filter(seven_days=seven_day)
+def tasks_redirect_view(request, issue_id):
+    task = get_object_or_404(Task, issue_id=issue_id)
+    slug = slugify(task.taskname)
+    return redirect('tasks:tasks_detail', issue_id=issue_id, task_name=slug)
+
+
+def tasks_detail_view(request, issue_id, task_name=None):
+    task = get_object_or_404(Task, issue_id=issue_id)
+    seven_days = SevenDays.objects.filter(project=task.seven_days.project)
+    pics = User.objects.filter(
+        assigned_projects__project=task.seven_days.project).distinct()
+    assigned_user_ids = task.taskassignment_set.all().values_list('user_id', flat=True)
+    return render(request, 'tasks/tasks_detail.html',
+                  {
+                      'task': task,
+                      'status_choices': Status.choices,
+                      'risk_level_choices': RiskLevel.choices,
+                      'rmu_choices': RMU.choices,
+                      'section_choices': Section.choices,
+                      'ptw_choices': PtwBasedOnRiskLevel.choices,
+                      'seven_days': seven_days,
+                      'pics': pics,
+                      'assigned_user_ids': assigned_user_ids,
+                  })
+
+# Tasks List View for Seven Days
+
+
+def tasks_list(request, sprint_id):
+    type = request.GET.get("type")
+    if type not in SprintType.choices():
+        return JsonResponse({"error": "Invalid sprint type."}, status=400)
+    # Determine the parent task model based on the type
+    parent_task = SevenDays if type == SprintType.SEVENDAYS else ThirtyDays
+    task_entity = Task if type == SprintType.SEVENDAYS else ThirtyDaysTask
+    
+    sprint = get_object_or_404(parent_task, id=sprint_id)
+    tasks = task_entity.objects.filter(sprint=sprint)
     tasks = add_json_to_model(tasks)
     # Filter users assigned to this sprint's project
     pics = User.objects.filter(
-        assigned_projects__project=seven_day.project).distinct()
+        assigned_projects__project=sprint.project).distinct()
     return render(request, 'tasks/tasks_list.html', {
-        'seven_day': seven_day,
+        'type': type,
+        'sprint': sprint,
         'tasks': tasks,
         'pics': pics,
         "rmu_choices": RMU.choices,
@@ -77,7 +174,8 @@ def tasks_create(request):
     # ── 2. Basic required text fields ────────────────────────────────
     taskname = data.get("taskname")
     status = data.get("status")
-    seven_day = get_object_or_404(SevenDays, pk=seven_day_id) if seven_day_id else None
+    seven_day = get_object_or_404(
+        SevenDays, pk=seven_day_id) if seven_day_id else None
 
     if not all([seven_day, taskname, status, pic_ids]):
         return JsonResponse(
@@ -166,7 +264,7 @@ def tasks_detail_view(request, issue_id, task_name=None):
 
 
 @csrf_exempt
-def update_task_ajax(request):
+def update_tasks_ajax(request):
     if request.method == "POST":
         task = get_object_or_404(Task, id=request.POST.get('task_id'))
         changes = []

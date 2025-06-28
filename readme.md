@@ -20,6 +20,12 @@ python ..\manage.py dumpdata --exclude=auth --exclude=sessions -o trial-data.jso
 ## Remove All Data
 `python manage.py flush`
 
+# Development Guides
+1. Auto formatter using extension [autopep8](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8)
+2. Function naming in urls follow apps naming (plural)
+3. Model class name using singular
+4. Templates file name follow apps naming (plural)
+
 # App Capabilities
 
 ## Project Management
@@ -45,7 +51,7 @@ python ..\manage.py dumpdata --exclude=auth --exclude=sessions -o trial-data.jso
 - Track sprint progress
 - Define sprint deliverables
 
-### 4. Epic Task Management
+### 4. 30D Epic Task Management
 - **Asset Planner responsibilities:**
   - Create 30D-level tasks
   - Define task requirements
