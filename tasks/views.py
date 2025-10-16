@@ -185,7 +185,7 @@ def tasks_create(request):
 
     # ── 3. Build the Task kwargs dict ────────────────────────────────
     task_kwargs = dict(
-        seven_days=seven_day,
+        sprint=seven_day,
         # basic
         rmu=data.get("rmu"),
         taskname=taskname,
@@ -245,9 +245,9 @@ def tasks_redirect_view(request, issue_id):
 
 def tasks_detail_view(request, issue_id, task_name=None):
     task = get_object_or_404(Task, issue_id=issue_id)
-    seven_days = SevenDays.objects.filter(project=task.seven_days.project)
+    seven_days = SevenDays.objects.filter(project=task.sprint.project)
     pics = User.objects.filter(
-        assigned_projects__project=task.seven_days.project).distinct()
+        assigned_projects__project=task.sprint.project).distinct()
     assigned_user_ids = task.taskassignment_set.all().values_list('user_id', flat=True)
     return render(request, 'tasks/tasks_detail.html',
                   {

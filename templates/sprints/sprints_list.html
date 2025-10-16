@@ -25,12 +25,22 @@
         {{ sprint.start_date }} to {{ sprint.end_date }}
       </div>
       <div class="mt-2 d-flex gap-2">
+        {% if type == "7d" %}
         <a
           href="{% url 'tasks:tasks_list' sprint.id %}?type={{ type }}"
           class="btn btn-link text-success p-0"
         >
           View {{ type|upper }} Tasks
         </a>
+        {% endif %}
+        {% if type == "30d" %}
+        <a
+          href="{% url 'projects:sprints_list' project.id %}?type=7d"
+          class="btn btn-link text-success p-0"
+        >
+          View 7D Lists
+        </a>
+        {% endif %}
         <button
           class="btn btn-link text-primary p-0 openEditSprintModal"
           data-url="{% url 'projects:sprints_edit' sprint.id %}?type={{ type }}"

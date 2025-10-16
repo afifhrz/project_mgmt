@@ -24,7 +24,7 @@ def home(request):
         })
     if "Section Planner" in user_groups:
         tasks = Task.objects.filter(taskassignment__user=request.user).select_related(
-            'seven_days__project').order_by('-created_at')
+            'sprint__project').order_by('-created_at')
         tasks = add_json_to_model(tasks)
 
         return render(request, 'home.html', {

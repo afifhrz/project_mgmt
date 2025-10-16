@@ -58,7 +58,7 @@ def seven_days_list(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     seven_days = SevenDays.objects.filter(
         project=project).order_by('-start_date')
-    return render(request, 'seven_days/seven_days_list.html', {'type':SprintType.SEVENDAYS, 'seven_days': seven_days, 'project': project})
+    return render(request, 'sprints/sprints_list.html', {'type':SprintType.SEVENDAYS, 'sprints': seven_days, 'project': project})
 
 
 @permission_required('projects.change_sevendays', raise_exception=True)

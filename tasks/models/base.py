@@ -56,9 +56,9 @@ class BaseTasks(BaseModel):
         if self.issue_id == "":
             # If issue_id is empty, generate it based on the project prefix and task count
             # Generate issue_id as prefix + (number of tasks in the current project + 1)
-            if hasattr(self, 'seven_days') and hasattr(self.seven_days, 'project'):
-                project = self.seven_days.project
+            if hasattr(self, 'sprint') and hasattr(self.sprint, 'project'):
+                project = self.sprint.project
                 from .models import Task  # Import here to avoid circular import
-                task_count = Task.objects.filter(seven_days__project=project).count()
+                task_count = Task.objects.filter(sprint__project=project).count()
                 self.issue_id = f"{project.prefix}-{task_count + 1}"
         super().save(*args, **kwargs)
